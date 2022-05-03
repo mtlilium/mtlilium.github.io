@@ -18,7 +18,6 @@ function isNumber(numVal){
 //3. key : "insane_dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
 function getMusic_LocalData(key){
     if(localStorage.getItem(key) === null) {
-        console.log("なかったよ")
         let new_obj = {
             "score": 0,
             "lamp": "NO PLAY",
@@ -88,9 +87,9 @@ function makeTable(chart,symbol){
                 $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
                 //lamp
                 // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
-                $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
+                $("<td id='td_lamp'><div><img src='./imgs/pen.png'></div></td>").appendTo(row);
                 //jacket
-                $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "'></td>").appendTo(row);
+                $("<td id='td_jacket'><div><img src='" + root_path["upload"] + music[j]["cover_path"] + "'></div></td>").appendTo(row);
                 //Title
                 $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
                 //Artist

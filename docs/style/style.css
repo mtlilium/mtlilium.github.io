@@ -106,7 +106,6 @@ a {
     border-collapse: collapse;
     border: 1px solid;
     font-size: 1.8vmin;
-    align-items: flex-start;
 }
 #app .ac_one .ac_inner #table_int #th_symbol{
     width: 7%;
