@@ -100,11 +100,13 @@ a {
     font-size: 2vmin;
 }
 #app .ac_one .ac_inner #table_int  tbody tr{
+
 }
 #app .ac_one .ac_inner #table_int  tbody tr td{
     border-collapse: collapse;
     border: 1px solid;
     font-size: 1.8vmin;
+    align-items: flex-start;
 }
 #app .ac_one .ac_inner #table_int #th_symbol{
     width: 7%;
@@ -117,9 +119,9 @@ a {
     height: 100%;
     margin : 0 auto;
     display: flex;
+    align-items: flex-start;
     vertical-align: middle;
     object-fit: cover;
-    align-items: flex-start;
 }
 #app .ac_one .ac_inner #table_int #th_jacket{
     width: 5%;
