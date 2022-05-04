@@ -6,6 +6,7 @@ let chart_info; // ALL
 let insane_chart_info; // 発狂難易度表入り譜面
 let max_score = 1000000;
 let min_score = 0;
+
 function isNumber(numVal){
     // チェック条件パターン
     const pattern = RegExp(/^([1-9]\d*|0)$/);
@@ -158,9 +159,21 @@ $(document).on('change', '#score_box', function() {
 });
 
 // ポップアップ閉じるボタンを押したとき
-$(document).on('click','#popup_close',function(){
-    $('.popup').fadeOut();
-    console.log("popup close!!");
+// $(document).on('click','#popup_close',function(){
+//     $('.popup').fadeOut();
+//     console.log("popup close!!");
+// });
+
+//１．クリックイベントの設定
+$(document).on('click', function(e) {
+    console.log($(e.target).closest('.popup').length)
+    // ２．クリックされた場所の判定
+    if(!$(e.target).closest('.popup_content').length && !$(e.target).closest('#td_lamp').length){
+        if(!$('.popup').is(':hidden')){
+            $('.popup').fadeOut();
+            console.log("popup close!!");
+        }
+    }
 });
 
 function setAccordionColor(){
