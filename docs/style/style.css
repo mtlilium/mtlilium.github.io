@@ -119,7 +119,7 @@ a {
 #app .ac_one .ac_inner #table_int tbody tr #td_lamp img{
     width: 100%;
     height: auto;
-    max-height: 6em;
+    /*max-height: 6em;*/
     margin : 0 auto;
     display: flex;
     align-items: flex-start;
