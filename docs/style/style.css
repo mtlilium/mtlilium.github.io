@@ -271,8 +271,10 @@ a {
 
 .popup_content{
     background: #fff;
-    width: 60%;
-    max-height: 60vh;
+    width: 40%;
+    min-width: 200px;
+    max-width: 900px;
+
 }
 
 .popup_show {
@@ -297,19 +299,38 @@ a {
     flex-flow: column;
     align-items: center;
     justify-content:space-around;
+    min-height: 20vh;
+    max-height: 30vh;
+    min-width: 60%;
+    background-color: aliceblue;
 }
 
 .wrap{
-    height: 100%;
+    height: fit-content;
     display:flex;
     justify-content:space-around;
+    /*max-height: 20%;*/
+    /*max-width: 100vw;*/
+    padding: 20px;
 }
 
+@media screen and (min-width:1000px) {
+    .wrap {
+        flex-flow: row;
+    }
+}
+
+@media screen and (max-width:1000px) {
+    .wrap {
+        flex-flow: column;
+    }
+    #editInfo_jacket {
+
+    }
+}
 
 #editInfo_jacket {
     width: 100%;
-    height: 100%;
-    align-items: flex-start;
     object-fit: contain;
 }
 
@@ -317,25 +338,23 @@ a {
     object-fit: cover;
     background-color: rgba(255, 255, 255, 0.8);
     background-blend-mode: lighten;
-    max-width: 40%;
+    /*width: fit-content;*/
 }
 
 
 #editInfo_title{
     /*min-width: 30vw;*/
+    text-align: center;
     font-weight: bold;
     font-size: 120%;
 }
 #editInfo_artist{
     /*min-width: 30vw;*/
+    text-align: center;
     font-size: 80%;
 }
 
 #button_popup_close{
     display:flex;
     justify-content:flex-end;
-}
-
-#editInfo_jacket_container{
-    object-fit: cover;
 }
