@@ -4,7 +4,8 @@ const lamp_colors = {"NO PLAY": "#dddddd", "CLEAR": "#ccffcc", "FULL COMBO": '#f
 let header_info; // header.json の情報
 let chart_info; // ALL
 let insane_chart_info; // 発狂難易度表入り譜面
-
+let max_score = 1000000;
+let min_score = 0;
 function isNumber(numVal){
     // チェック条件パターン
     const pattern = RegExp(/^([1-9]\d*|0)$/);
@@ -87,9 +88,9 @@ function makeTable(chart,symbol){
                 $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
                 //lamp
                 // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
-                $("<td id='td_lamp'><div><img src='./imgs/pen.png'></div></td>").appendTo(row);
+                $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
                 //jacket
-                $("<td id='td_jacket'><div><img src='" + root_path["upload"] + music[j]["cover_path"] + "'></div></td>").appendTo(row);
+                $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "'></td>").appendTo(row);
                 //Title
                 $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
                 //Artist
@@ -146,8 +147,8 @@ $(document).on('change', '#score_box', function() {
     let v = $(this).val();
     let id = $(this).attr('class');
     let m_data = getMusic_LocalData(id);
-    //整数値以外をはじく
-    if(isNumber(v)){
+    //整数値以外をはじく (最大値 1000000)
+    if(isNumber(v) && parseInt(v) <= max_score){
         changeScoreText($("#tr_" + id), m_data['lamp'], v);
         m_data['score'] = v;
         localStorage.setItem(id, JSON.stringify(m_data));

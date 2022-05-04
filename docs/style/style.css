@@ -12,6 +12,9 @@ body {
     width: 100vw;
     height: 100vh;
 }
+body::-webkit-scrollbar {
+    display:none;
+}
 
 h1 {
     text-align: center;
@@ -268,10 +271,8 @@ a {
 
 .popup_content{
     background: #fff;
-    width: 30vw;
-    /*min-width: 70vw;*/
-    height: auto;
-    /*min-height: 50vh;*/
+    width: 60%;
+    max-height: 60vh;
 }
 
 .popup_show {
@@ -283,6 +284,14 @@ a {
 /*====================================================================
 .box_info (editInfo のテーブル)
 ====================================================================*/
+
+.box_info{
+    height: 100%;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+
 .tate {
     display:flex;
     flex-flow: column;
@@ -291,9 +300,11 @@ a {
 }
 
 .wrap{
+    height: 100%;
     display:flex;
     justify-content:space-around;
 }
+
 
 #editInfo_jacket {
     width: 100%;
@@ -318,11 +329,6 @@ a {
 #editInfo_artist{
     /*min-width: 30vw;*/
     font-size: 80%;
-}
-.box_info{
-    width: 100%;
-    word-break: break-all;
-    word-wrap: break-word;
 }
 
 #button_popup_close{
