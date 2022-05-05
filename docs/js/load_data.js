@@ -216,6 +216,11 @@ function editInfo(id){
         $("#score_box").attr('class', target["live_id"]);
         $('#score_box').prop("disabled", getMusic_LocalData(target["live_id"])['lamp'] === 'NO PLAY');
     });
+    $(function() {
+        $( "#favorite_icon" ).click(function() {
+            $( "#favorite_icon" ).toggleClass( "press", 1000 );
+        });
+    });
 
     $('.popup').addClass('popup_show').fadeIn();
 }

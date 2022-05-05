@@ -21,8 +21,8 @@ h1 {
     font-weight: normal;
 }
 
-a {
-    color: #3456cd;
+th{
+    text-align: center;
 }
 
 /*----------------------------
@@ -303,7 +303,7 @@ a {
     align-items: center;
     justify-content:space-around;
     min-height: 20vh;
-    max-height: 30vh;
+    max-height: 35vh;
     min-width: 60%;
     background-color: aliceblue;
 }
@@ -350,14 +350,58 @@ a {
     text-align: center;
     font-weight: bold;
     font-size: 120%;
+    margin: 1% 1% 0.5%;
 }
 #editInfo_artist{
     /*min-width: 30vw;*/
     text-align: center;
     font-size: 80%;
+    margin-bottom: 0.5%;
 }
 
 #button_popup_close{
     display:flex;
     justify-content:flex-end;
+}
+
+#lamp_menu{
+    text-align: center;
+    width: 8.5em;
+    margin-bottom: 1%;
+}
+#score_box_container{
+    flex-shrink: 0;
+}
+#score_box_container input[type="text"]{
+    width: 8em;
+}
+#score_box{
+    text-align: center;
+    margin-bottom: 5%;
+}
+/*faorite icon*/
+label input[type="checkbox"] {
+    display: none;
+}
+.favorite_checkbox{
+    position: relative;
+    cursor: pointer;
+}
+
+#check_favorite .glyphicon{
+    color: gold;
+    position: absolute;
+}
+#check_favorite .glyphicon-star-empty{
+    color: gray;
+}
+#check_favorite .glyphicon-star{
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+#check_favorite:hover .glyphicon-star{
+    opacity: 0.5;
+}
+#check_favorite:checked ~ .glyphicon-star{
+    opacity: 1;
 }
