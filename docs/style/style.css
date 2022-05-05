@@ -27,8 +27,10 @@ th{
 #navBar {
     background-color: #222222;
     color: white;
+    width: 100vw;
 }
 #navBar ul{
+    width: 100%;
     display: flex;
     justify-content: center;
     flex-flow: row;
@@ -63,8 +65,8 @@ th{
 #panel {
     width: 60%;
     background: #222222;
-    margin: 10px auto 3px;
-    padding: 10px 0;
+    margin: 10px auto 10px;
+    padding: 10px 10px;
 }
 #randomSelect{
     display: flex;

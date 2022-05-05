@@ -1,9 +1,11 @@
 // 定数
 const root_path = {live:"https://m.tianyi9.com/#/getlive?live_id=", upload:"https://m.tianyi9.com/upload/", user:"https://m.tianyi9.com/#/userInfo?uid=", user_info:"https://m.tianyi9.com/API/user_info?uid="};
 const lamp_colors = {"NO PLAY": "#dddddd", "CLEAR": "#ccffcc", "FULL COMBO": '#ffffcc'}; // クリアランプの色
+const dani_rank = ["初段", "二段", "三段", "四段", "五段", "六段", "七段", "八段", "九段", "十段", "中伝", "皆伝"];
 let header_info; // header.json の情報
 let chart_info; // ALL
 let insane_chart_info; // 発狂難易度表入り譜面
+let dani_info;
 let max_score = 1000000;
 let min_score = 0;
 
@@ -56,8 +58,10 @@ $(document).ready(function () {
             chart_info = chart;
             insane_chart_info = chart_info.filter(c => c["★"] !== ""); // // 発狂難易度表入り譜面のみをフィルタで取得
             makeTable(insane_chart_info, header_info["symbol"]);
-            makePanel(header_info);
         });
+    });
+    $.getJSON($("meta[name=dani_data]").attr("content"), function (dani) {
+        dani_info = dani;
     });
 });
 
@@ -81,7 +85,7 @@ function makePanel(headerInfo){
         let lv_length = header_info["level_order"].length;
         for(let i = 0; i < lv_length; ++i){
             let lv = header_info["level_order"][i];
-            $('<option value=lv>★' + lv + '</option>').appendTo($("#randomLevel"));
+            $('<option value=' + lv + '>★' + lv + '</option>').appendTo($("#randomLevel"));
         }
     });
     obj.css("visibility", "visible");
@@ -91,9 +95,6 @@ function makePanel(headerInfo){
 function makeTable(chart,symbol){
     let obj = $("#app");
     obj.html(""); // 初期化
-
-    //ジャンプ用の ui を生成 TODO
-
     // header.json に書かれている level_order から順番に生成
     for(let i = 0; i < header_info["level_order"].length; ++i){
         let lv = header_info["level_order"][i];
@@ -140,6 +141,7 @@ function makeTable(chart,symbol){
             }
         }
     }
+    makePanel(header_info);
     setAccordionColor();
 };
 
@@ -190,12 +192,10 @@ $(document).on('change', '#score_box', function() {
 
 //１．クリックイベントを判定してポップアップ消す
 $(document).on('click', function(e) {
-    console.log($(e.target).closest('.popup').length)
     // ２．クリックされた場所の判定
     if(!$(e.target).closest('.popup_content').length && !$(e.target).closest('#td_lamp').length){
         if(!$('.popup').is(':hidden')){
             $('.popup').fadeOut();
-            console.log("popup close!!");
         }
     }
 });
@@ -244,19 +244,72 @@ function editInfo(id){
     $('.popup').addClass('popup_show').fadeIn();
 }
 
+// ランセレ 本体 譜面の選定
+function getRandomSelect(){
+    // レベルで絞り込み
+    const level = $("#randomLevel").val();
+    const relational = $("#randomRelational").val();
+    const candidates = insane_chart_info.filter(e => (relational === `eq`) ? e["★"] == level : (relational === `leq`) ? e["★"] <= level : e["★"] >= level);
+    if(!candidates.length){alert('該当する作品がありません'); return undefined;}
+    const rnd = ~~(Math.random() * candidates.length);
+
+    return root_path["live"] + candidates[rnd]["live_id"];
+}
+// ランセレ 呼び出し
+function randomSelect() {
+    const url = getRandomSelect();
+    if (url) {
+        localStorage["selectRandomCnt"] = Number(localStorage["selectRandomCnt"]) + 1 || 1;
+        document.location = url;
+    }
+}
 
 
-
-
-
-//
+//Aboutページ遷移
+$(document).on('click','#nav_about',function(){
+    makeAbout();
+    console.log("show: about");
+});
+//難易度表ページ遷移
 $(document).on('click','#nav_chart',function(){
     makeTable(insane_chart_info, header_info["symbol"]);
     console.log("show: chart");
 });
-
+//段位認定ページ遷移
 $(document).on('click','#nav_dani',function(){
-    var obj = $("#app");
-    obj.html(""); // 初期化
+    makeDaniTable();
     console.log("show: dani");
 });
+//Statsページ遷移
+$(document).on('click','#nav_stats',function(){
+    makeStats();
+    console.log("show: stats");
+});
+//Settingページ遷移
+$(document).on('click','#nav_setting',function(){
+    makeSetting();
+    console.log("show: setting");
+});
+
+function makeAbout(){
+    let obj = $("#app");
+    obj.html(""); // 初期化
+    $("#panel").css("visibility", "hidden");
+}
+function makeDaniTable(){
+    // 現シーズンの段位認定 dani_info["season_" + header_info["season"].slice(-1)[0]]
+    let obj = $("#app");
+    obj.html(""); // 初期化
+    $("#panel").css("visibility", "hidden");
+
+}
+function makeStats(){
+    let obj = $("#app");
+    obj.html(""); // 初期化
+    $("#panel").css("visibility", "hidden");
+}
+function makeSetting(){
+    let obj = $("#app");
+    obj.html(""); // 初期化
+    $("#panel").css("visibility", "hidden");
+}
