@@ -18,6 +18,8 @@ function isNumber(numVal){
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
 //2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_insane_dani": "三段"}
 //3. key : "insane_dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
+
+
 function getMusic_LocalData(key){
     if(localStorage.getItem(key) === null) {
         let new_obj = {
@@ -52,22 +54,49 @@ $(document).ready(function () {
             console.log(header);
             header_info = header;
             chart_info = chart;
-            insane_chart_info = chart_info.filter(c => c["★"] !== "") // // 発狂難易度表入り譜面のみをフィルタで取得
-            makeTable(insane_chart_info, header_info["symbol"])
+            insane_chart_info = chart_info.filter(c => c["★"] !== ""); // // 発狂難易度表入り譜面のみをフィルタで取得
+            makeTable(insane_chart_info, header_info["symbol"]);
+            makePanel(header_info);
         });
     });
 });
 
+// スクロールすると丈夫に固定されるナビゲーション
+$(document).ready(function () {
+    let navBar = $("#navBar");
+    $(window).scroll(function (){
+        if($(this).scrollTop() >= $("#app").offset().top){
+            navBar.addClass('fixedBar');
+        }else{
+            navBar.removeClass('fixedBar');
+        }
+    });
+});
+// 上部のパネルを生成
+function makePanel(headerInfo){
+    let obj = $("#panel");
+    obj.html(""); // 初期化
 
+    obj.load("./tmp/randomSelect.html", function (){
+        let lv_length = header_info["level_order"].length;
+        for(let i = 0; i < lv_length; ++i){
+            let lv = header_info["level_order"][i];
+            $('<option value=lv>★' + lv + '</option>').appendTo($("#randomLevel"));
+        }
+    });
+    obj.css("visibility", "visible");
+}
+
+// 発狂難易度のテーブルを生成
 function makeTable(chart,symbol){
-    var obj = $("#app");
+    let obj = $("#app");
     obj.html(""); // 初期化
 
     //ジャンプ用の ui を生成 TODO
 
     // header.json に書かれている level_order から順番に生成
     for(let i = 0; i < header_info["level_order"].length; ++i){
-        var lv = header_info["level_order"][i];
+        let lv = header_info["level_order"][i];
         let music = chart.filter(c => c["★"] == lv);
         // 該当する譜面が存在すればアコーディオンリスト 1 つ生成
         if(music.length){
@@ -158,13 +187,8 @@ $(document).on('change', '#score_box', function() {
     }
 });
 
-// ポップアップ閉じるボタンを押したとき
-// $(document).on('click','#popup_close',function(){
-//     $('.popup').fadeOut();
-//     console.log("popup close!!");
-// });
 
-//１．クリックイベントの設定
+//１．クリックイベントを判定してポップアップ消す
 $(document).on('click', function(e) {
     console.log($(e.target).closest('.popup').length)
     // ２．クリックされた場所の判定
@@ -216,11 +240,23 @@ function editInfo(id){
         $("#score_box").attr('class', target["live_id"]);
         $('#score_box').prop("disabled", getMusic_LocalData(target["live_id"])['lamp'] === 'NO PLAY');
     });
-    $(function() {
-        $( "#favorite_icon" ).click(function() {
-            $( "#favorite_icon" ).toggleClass( "press", 1000 );
-        });
-    });
 
     $('.popup').addClass('popup_show').fadeIn();
 }
+
+
+
+
+
+
+//
+$(document).on('click','#nav_chart',function(){
+    makeTable(insane_chart_info, header_info["symbol"]);
+    console.log("show: chart");
+});
+
+$(document).on('click','#nav_dani',function(){
+    var obj = $("#app");
+    obj.html(""); // 初期化
+    console.log("show: dani");
+});
