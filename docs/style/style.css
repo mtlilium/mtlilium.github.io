@@ -21,6 +21,13 @@ th{
     text-align: center;
 }
 
+#title_logo{
+    display: block;
+    margin: 0 auto;
+    max-height: 10vh;
+    width: auto;
+}
+
 /*====================================================================
 #navBar ナビバー
 ====================================================================*/
@@ -34,21 +41,21 @@ th{
     display: flex;
     justify-content: center;
     flex-flow: row;
-    margin: 0;
+    margin: 0 auto;
     padding: 6px;
     list-style-type: none;
 }
 #navBar li{
+    min-width: 0;
     display: block;
-    border-radius: 4px;
-    padding: 12px 24px;
+    border-radius: 25px;
+    padding: 12px 12px;
     color: white;
     text-decoration: none;
     cursor: pointer;
 }
 
 #navBar li:hover{
-
     background-color: #8cae47;
 }
 
@@ -72,6 +79,10 @@ th{
     display: flex;
     justify-content: center;
     flex-flow: row;
+    padding: 10px 10px;
+}
+#randomLevel, #randomRelational, #randomSelectButton{
+    margin: 10px;
 }
 /*====================================================================
 #table_int アコーディオン内の表
@@ -369,30 +380,4 @@ th{
 #score_box{
     text-align: center;
     margin-bottom: 5%;
-}
-/*faorite icon*/
-label input[type="checkbox"] {
-    display: none;
-}
-.favorite_checkbox{
-    position: relative;
-    cursor: pointer;
-}
-
-#check_favorite .glyphicon{
-    color: gold;
-    position: absolute;
-}
-#check_favorite .glyphicon-star-empty{
-    color: gray;
-}
-#check_favorite .glyphicon-star{
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-}
-#check_favorite:hover .glyphicon-star{
-    opacity: 0.5;
-}
-#check_favorite:checked ~ .glyphicon-star{
-    opacity: 1;
 }

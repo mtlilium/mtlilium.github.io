@@ -18,7 +18,7 @@ function isNumber(numVal){
 
 // セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
-//2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_insane_dani": "三段"}
+//2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_dani": "三段"}
 //3. key : "insane_dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
 
 
@@ -271,9 +271,9 @@ $(document).on('click','#nav_about',function(){
     console.log("show: about");
 });
 //難易度表ページ遷移
-$(document).on('click','#nav_chart',function(){
+$(document).on('click','#nav_charts',function(){
     makeTable(insane_chart_info, header_info["symbol"]);
-    console.log("show: chart");
+    console.log("show: charts");
 });
 //段位認定ページ遷移
 $(document).on('click','#nav_dani',function(){
@@ -302,6 +302,49 @@ function makeDaniTable(){
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
 
+    for(let i = 0; i < dani_rank.length; ++i){
+        let d = dani_info["season_" + header_info["season"].slice(-1)[0]]; // 書き方 d["初段"]
+        // 該当する段位が存在すればアコーディオンリスト 1 つ生成
+        if(dani_rank[i] in d){
+            console.log(d[dani_rank[i]])
+            // // アコーディオン部
+            // $("<div class='ac_one'" + "id=lv" + lv + "><div class='ac_header'>" + symbol + lv + "<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
+            // $("#lv" + lv).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
+            // // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
+            // $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
+            // // 行追加
+            // for(let j = 0; j < music.length; ++j){
+            //     //localStorage["live_id"] からクリア状況データを取得
+            //     let music_localData = getMusic_LocalData(music[j]["live_id"]);
+            //     // music[j]["live_id"] から row を特定できるようにする
+            //     let row = $("<tr id='tr_" + music[j]["live_id"] + "' ></tr>");
+            //     changeBgColor(row, lamp_colors[music_localData["lamp"]]);
+            //     //symbol
+            //     $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
+            //     //lamp
+            //     // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
+            //     $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
+            //     //jacket
+            //     $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "'></td>").appendTo(row);
+            //     //Title
+            //     $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
+            //     //Artist
+            //     $("<td id='td_artist'>" + music[j]["artist"] + "</td>").appendTo(row);
+            //     //Author
+            //     $("<td id='td_author'>" + music[j]["author"] + "</td>").appendTo(row);
+            //     //Level(公式難易度)
+            //     $("<td id='td_level'>" + music[j]["level"] + "</td>").appendTo(row);
+            //     //Score(localStorage["live_id"]で管理)
+            //     if(music_localData["lamp"] === "NO PLAY"){
+            //         $("<td id='td_score'>" + "NO PLAY" + "</td>").appendTo(row);
+            //     }else{
+            //         $("<td id='td_score'>" + music_localData["score"] + "</td>").appendTo(row);
+            //     }
+            //     //追加
+            //     $("#lv" + lv).find(".ac_inner .box_one tbody").append(row);
+            // }
+        }
+    }
 }
 function makeStats(){
     let obj = $("#app");
