@@ -264,10 +264,18 @@ function getRandomSelect(){
     // レベルで絞り込み
     const level = $("#randomLevel").val();
     const relational = $("#randomRelational").val();
-    const candidates = insane_chart_info.filter(e => (relational === `eq`) ? e["★"] == level : (relational === `leq`) ? e["★"] <= level : e["★"] >= level);
+    let candidates;
+    if (relational === "eq"){
+        candidates = insane_chart_info.filter(e => parseInt(e["★"]) == level);
+    }else if(relational === "leq"){
+        candidates = insane_chart_info.filter(e => parseInt(e["★"]) <= level);
+    }else{
+        candidates = insane_chart_info.filter(e => parseInt(e["★"]) >= level);
+    }
+    console.log(candidates);
     if(!candidates.length){alert('該当する作品がありません'); return undefined;}
     const rnd = ~~(Math.random() * candidates.length);
-
+    console.log(candidates[rnd] + " " + candidates[rnd]["★"] + ":" + level);
     return root_path["live"] + candidates[rnd]["live_id"];
 }
 // ランセレ 呼び出し
@@ -275,7 +283,8 @@ function randomSelect() {
     const url = getRandomSelect();
     if (url) {
         localStorage["selectRandomCnt"] = Number(localStorage["selectRandomCnt"]) + 1 || 1;
-        document.location = url;
+        // document.location = url;
+        window.open(url, "_blank");
     }
 }
 

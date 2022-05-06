@@ -369,13 +369,13 @@ th{
     padding: 1em;
 }
 
-@media screen and (min-width:1000px) {
+@media screen and (min-width:900px) {
     .wrap {
         flex-flow: row;
     }
 }
 
-@media screen and (max-width:1000px) {
+@media screen and (max-width:900px) {
     .wrap {
         flex-flow: column;
     }
