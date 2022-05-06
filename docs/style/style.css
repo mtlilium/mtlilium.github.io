@@ -1,10 +1,9 @@
-/*
-  基本要素
-*/
+/*====================================================================
+基本要素
+====================================================================*/
 body {
     font-size: 16px;
     font-family: sans-serif;
-    /*color: #343434;*/
     width: 100vw;
     height: 100vh;
     background-color: #222222;
@@ -76,6 +75,21 @@ th{
     width: 100vw;
     z-index: 125;
 }
+.btn {
+    background: rgba(0, 127, 128, 0.68);
+    -webkit-box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
+    box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
+    border: 1px solid rgba(128, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.95);
+    font-size: 30px;
+    padding: 10px 30px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline: none;
+}
 /*====================================================================
 #panel パネル
 ====================================================================*/
@@ -136,12 +150,8 @@ th{
 /*====================================================================
 #table_int アコーディオン内の表
 ====================================================================*/
-#app .ac_one{
-    width: 80%;
-    height: auto;
-}
 
-#app .ac_one .ac_inner #table_int{
+#table_int{
     width: 100%;
     min-width: 100px;
     border-collapse: collapse;
@@ -150,26 +160,26 @@ th{
     word-break: break-all;
     word-wrap: break-word;
 }
-#app .ac_one .ac_inner #table_int th{
+#table_int th{
     border-collapse: collapse;
     font-size: 2vmin;
 }
-#app .ac_one .ac_inner #table_int th{
+#table_int th{
     color: aliceblue;
 }
 
-#app .ac_one .ac_inner #table_int  tbody tr td{
+#table_int  tbody tr td{
     border-collapse: collapse;
     border: 1px solid #2b2b2b;
     font-size: 1.8vmin;
 }
-#app .ac_one .ac_inner #table_int #th_symbol{
+#table_int #th_symbol{
     width: 9%;
 }
-#app .ac_one .ac_inner #table_int #th_lamp{
+#table_int #th_lamp{
     width: 4%;
 }
-#app .ac_one .ac_inner #table_int tbody tr #td_lamp img{
+#table_int tbody tr #td_lamp img{
     width: 100%;
     height: auto;
     margin : 0 auto;
@@ -179,10 +189,10 @@ th{
     object-fit: cover;
     cursor: pointer;
 }
-#app .ac_one .ac_inner #table_int #th_jacket{
+#table_int #th_jacket{
     width: 5%;
 }
-#app .ac_one .ac_inner #table_int tbody tr #td_jacket img{
+#table_int tbody tr #td_jacket img{
     width: 100%;
     height: auto;
     max-height: 6em;
@@ -193,28 +203,28 @@ th{
     align-items: flex-start;
 }
 
-#app .ac_one .ac_inner #table_int #th_title{
+#table_int #th_title{
     width: 28%;
 }
-#app .ac_one .ac_inner #table_int #th_artist{
+#table_int #th_artist{
     width: 15%;
 }
-#app .ac_one .ac_inner #table_int #th_author{
+#table_int #th_author{
     width: 13%;
 }
-#app .ac_one .ac_inner #table_int #th_level{
+#table_int #th_level{
     width: 10%;
 }
-#app .ac_one .ac_inner #table_int tbody tr #td_symbol{
+#table_int tbody tr #td_symbol{
     text-align: center;
 }
-#app .ac_one .ac_inner #table_int tbody tr #td_level{
+#table_int tbody tr #td_level{
     text-align: center;
 }
-#app .ac_one .ac_inner #table_int #th_score{
+#table_int #th_score{
     width: 16%;
 }
-#app .ac_one .ac_inner #table_int tbody tr #td_score{
+#table_int tbody tr #td_score{
     text-align: center;
 }
 /*====================================================================
@@ -222,6 +232,7 @@ th{
 ====================================================================*/
 #app .ac_one {
     width: 80%;
+    height: auto;
     max-width: 1200px;
     min-width: 200px;
     margin: 0 auto;
@@ -305,10 +316,48 @@ th{
 #app .ac_one .ac_inner .box_one {
     height: auto;
 }
-#app .ac_one .ac_inner p.txt_a_ac {
-    margin: 0;
-}
 
+/*====================================================================
+#app .ac2_one 本番用
+====================================================================*/
+#app .ac2_one {
+    width: 80%;
+    max-width: 1200px;
+    min-width: 200px;
+    margin: 0 auto;
+}
+#app .ac2_header{
+    background: rgba(0, 127, 128, 0.68);
+    -webkit-box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
+    box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
+    border: 1px solid rgba(128, 255, 255, 0.25);
+    /*固定*/
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.95);
+}
+#app .ac2_header .items_header{
+    height: fit-content;
+    display:flex;
+    padding: .2em;
+}
+#app .ac2_header .symbol_header{
+    position: relative;
+    font-size: 2em;
+    vertical-align: middle;
+    object-fit: cover;
+}
+#app .ac2_header .lamp_cnt_header{
+    padding-left: 4em;
+}
+#app .ac2_one .ac2_header:hover {
+    opacity: .8;
+}
+#app .ac2_one .ac_inner {
+    display: none;
+}
+#app .ac2_one .ac_inner .box_one {
+    height: auto;
+}
 /*====================================================================
 #popup
 ====================================================================*/
@@ -369,13 +418,13 @@ th{
     padding: 1em;
 }
 
-@media screen and (min-width:900px) {
+@media screen and (min-width:700px) {
     .wrap {
         flex-flow: row;
     }
 }
 
-@media screen and (max-width:900px) {
+@media screen and (max-width:700px) {
     .wrap {
         flex-flow: column;
     }

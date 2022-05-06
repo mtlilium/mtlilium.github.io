@@ -1,6 +1,6 @@
 // 定数
 const root_path = {live:"https://m.tianyi9.com/#/getlive?live_id=", upload:"https://m.tianyi9.com/upload/", user:"https://m.tianyi9.com/#/userInfo?uid=", user_info:"https://m.tianyi9.com/API/user_info?uid="};
-const lamp_colors = {"NO PLAY": "#dddddd", "CLEAR": "#ccffcc", "FULL COMBO": '#ffffcc'}; // クリアランプの色
+const lamp_colors = {"NO PLAY": "#dddddde6", "CLEAR": "#ccffcce6", "FULL COMBO": "#ffffcce6"}; // クリアランプの色
 const dani_rank = ["初段", "二段", "三段", "四段", "五段", "六段", "七段", "八段", "九段", "十段", "中伝", "皆伝"];
 let header_info; // header.json の情報
 let chart_info; // ALL
@@ -58,6 +58,13 @@ function setLampStatus(){
     $("#lampStatus_CLEAR").text(num_clear); //CLEAR の数;
     $("#lampStatus_FULL_COMBO").text(num_full_combo); //FULL COMBO の数;
     $("#totalCntArea").text("Total " + num_total + " Charts");
+}
+function getLevelLampStatus(lv) {
+    let num_no_play = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "NO PLAY" && c["★"] == lv).length;
+    let num_clear = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "CLEAR" && c["★"] == lv).length;
+    let num_full_combo = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "FULL COMBO" && c["★"] == lv).length;
+    let num_total = num_clear + num_full_combo + num_no_play;
+    return "All: " + num_total + " NP: " + num_no_play + " C: " + num_clear + " FC: " + num_full_combo;
 }
 // header.json 読み込み => Googleスプレッドシートへのアクセス
 $(document).ready(function () {
@@ -117,7 +124,11 @@ function makeTable(chart,symbol){
             console.log(lv + ":" + music.length + "譜面")
             console.log(music)
             // アコーディオン部
-            $("<div class='ac_one'" + "id=lv" + lv + "><div class='ac_header'>" + symbol + lv + "(" + music.length + " Charts)" +"<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
+            // $("<div class='ac_one'" + "id=lv" + lv + "><div class='ac_header'>" + symbol + lv + "(" + music.length + " Charts)" +
+            //     "<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
+            $("<div class='ac2_one'" + "id=lv" + lv + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + symbol + lv + "</div>" +
+                "<div class='lamp_cnt_header'>" + "Total: 00 NP: 00 C: 00 FC: 00" + "</div>" +
+            "<div class='i_box'><i class='one_i'></i></div></div></div><div class='ac_inner'>").appendTo(obj);
             $("#lv" + lv).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
             // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
             $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
@@ -134,7 +145,7 @@ function makeTable(chart,symbol){
                 // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
                 $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
                 //jacket
-                $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "'></td>").appendTo(row);
+                $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
                 //Title
                 $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
                 //Artist
@@ -152,14 +163,16 @@ function makeTable(chart,symbol){
                 //追加
                 $("#lv" + lv).find(".ac_inner .box_one tbody").append(row);
             }
+            $("#lv" + lv).find(".ac2_header .lamp_cnt_header").text(getLevelLampStatus(lv));
         }
     }
+
     makePanel(header_info);
     setAccordionColor();
 };
 
 //アコーディオン開け閉め
-$(document).on('click','#app .ac_one .ac_header',function(){
+$(document).on('click','#app .ac2_one .ac2_header',function(){
     //クリックされた.ac_oneの中の.ac_headerに隣接する.ac_innerが開いたり閉じたりする。
     $(this).next('.ac_inner').slideToggle();
     $(this).toggleClass("open");
@@ -185,7 +198,10 @@ $(document).on('change', '#lamp_menu', function(){
     //セーブデータ更新
     m_data['lamp'] = r;
     localStorage.setItem(id, JSON.stringify(m_data));
-
+    //アコーディオンヘッダ内の lampStatusも変更
+    let lv = insane_chart_info.filter(c => c["live_id"] === id)[0]["★"];
+    $("#lv" + lv).find(".ac2_header .lamp_cnt_header").text(getLevelLampStatus(lv));
+    //パネル内の lampstatusも変更
     setLampStatus();
 });
 
@@ -255,7 +271,7 @@ function editInfo(id){
         $("#score_box").attr('class', target["live_id"]);
         $('#score_box').prop("disabled", getMusic_LocalData(target["live_id"])['lamp'] === 'NO PLAY');
     });
-
+    //表示
     $('.popup').addClass('popup_show').fadeIn();
 }
 
