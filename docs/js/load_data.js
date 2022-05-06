@@ -47,7 +47,18 @@ function changeScoreText(tr_obj, lamp, new_score){
         tr_obj.find('#td_score').text(new_score);
     }
 }
-
+function setLampStatus(){
+    let num_no_play = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "NO PLAY").length;
+    let num_clear = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "CLEAR").length;
+    let num_full_combo = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "FULL COMBO").length;
+    let num_total = num_clear + num_full_combo + num_no_play;
+    console.log(num_no_play, num_clear, num_full_combo);
+    console.log($("#panel #lampStatus_NO_PLAY").text())
+    $("#lampStatus_NO_PLAY").text(num_no_play); //NO PLAY の数;
+    $("#lampStatus_CLEAR").text(num_clear); //CLEAR の数;
+    $("#lampStatus_FULL_COMBO").text(num_full_combo); //FULL COMBO の数;
+    $("#totalCntArea").text("Total " + num_total + " Charts");
+}
 // header.json 読み込み => Googleスプレッドシートへのアクセス
 $(document).ready(function () {
     $.getJSON($("meta[name=chart_data]").attr("content"), function (header) {
@@ -80,14 +91,16 @@ $(document).ready(function () {
 function makePanel(headerInfo){
     let obj = $("#panel");
     obj.html(""); // 初期化
-
-    obj.load("./tmp/randomSelect.html", function (){
+    //ランセレ部分
+    obj.load("./tmp/panel.html", function (){
         let lv_length = header_info["level_order"].length;
         for(let i = 0; i < lv_length; ++i){
             let lv = header_info["level_order"][i];
             $('<option value=' + lv + '>★' + lv + '</option>').appendTo($("#randomLevel"));
         }
+        setLampStatus();
     });
+
     obj.css("visibility", "visible");
 }
 
@@ -104,7 +117,7 @@ function makeTable(chart,symbol){
             console.log(lv + ":" + music.length + "譜面")
             console.log(music)
             // アコーディオン部
-            $("<div class='ac_one'" + "id=lv" + lv + "><div class='ac_header'>" + symbol + lv + "<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
+            $("<div class='ac_one'" + "id=lv" + lv + "><div class='ac_header'>" + symbol + lv + "(" + music.length + " Charts)" +"<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
             $("#lv" + lv).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
             // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
             $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
@@ -172,6 +185,8 @@ $(document).on('change', '#lamp_menu', function(){
     //セーブデータ更新
     m_data['lamp'] = r;
     localStorage.setItem(id, JSON.stringify(m_data));
+
+    setLampStatus();
 });
 
 // スコア更新
@@ -308,8 +323,8 @@ function makeDaniTable(){
         if(dani_rank[i] in d){
             console.log(d[dani_rank[i]])
             // // アコーディオン部
-            // $("<div class='ac_one'" + "id=lv" + lv + "><div class='ac_header'>" + symbol + lv + "<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
-            // $("#lv" + lv).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
+            $("<div class='ac_one'" + "id=" + dani_rank[i] + "><div class='ac_header'>" + dani_rank[i] + "<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
+            $("#" + dani_rank[i]).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
             // // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
             // $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
             // // 行追加
@@ -345,11 +360,18 @@ function makeDaniTable(){
             // }
         }
     }
+    setAccordionColor();
 }
 function makeStats(){
     let obj = $("#app");
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
+
+    var a = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "FULL COMBO"); //FULL COMBO の数
+    var b = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "CLEAR"); //CLEAR の数
+    var c = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "NO PLAY"); //NO PLAY の数
+    console.log(a)
+    console.log(a.length)
 }
 function makeSetting(){
     let obj = $("#app");

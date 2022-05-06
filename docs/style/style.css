@@ -4,9 +4,11 @@
 body {
     font-size: 16px;
     font-family: sans-serif;
-    color: #343434;
+    /*color: #343434;*/
     width: 100vw;
     height: 100vh;
+    background-color: #222222;
+    background: repeating-linear-gradient(45deg, #2b2b2b 0%, #2b2b2b 10%, #222222 0%, #222222 50%) 0 / 15px 15px;
 }
 body::-webkit-scrollbar {
     display:none;
@@ -26,14 +28,22 @@ th{
     margin: 0 auto;
     max-height: 10vh;
     width: auto;
+    padding-bottom: 5px;
 }
+
+#footer{
+    padding-bottom: 100px;
+}
+
 
 /*====================================================================
 #navBar ナビバー
 ====================================================================*/
 #navBar {
+    display: block;
+    margin: 0 auto;
     background-color: #222222;
-    color: white;
+    color: aliceblue;
     width: 100vw;
 }
 #navBar ul{
@@ -50,7 +60,7 @@ th{
     display: block;
     border-radius: 25px;
     padding: 12px 12px;
-    color: white;
+    color: aliceblue;
     text-decoration: none;
     cursor: pointer;
 }
@@ -63,17 +73,25 @@ th{
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 100vw;
     z-index: 125;
 }
 /*====================================================================
 #panel パネル
 ====================================================================*/
 #panel {
-    width: 60%;
+    max-width: 800px;
     background: #222222;
     margin: 10px auto 10px;
     padding: 10px 10px;
+    box-shadow: inset 0px 1px 0px rgba(255,255,255,.1),0px 1px 3px rgba(0,0,0,0.3);
+    border: 1px solid #2b2b2b;
+    color: #555;
+    /*background: -webkit-linear-gradient(top,  #000, #222 15%, #333 28%, #000  63%, #2f2f2f 87%, #000);*/
+    text-shadow: 0px -1px 0px rgba(0,0,0,0.4);
+    text-decoration: none;
+    outline: none;
+
 }
 #randomSelect{
     display: flex;
@@ -83,6 +101,37 @@ th{
 }
 #randomLevel, #randomRelational, #randomSelectButton{
     margin: 10px;
+}
+#lampStatus{
+    display: flex;
+    justify-content: center;
+    flex-flow: row;
+}
+#lampStatus span{
+    display: inline-block;
+    width: 100px;
+    height: 20px;
+    text-align: center;
+}
+#lampStatus_NO_PLAY{
+    color: #2b2b2b;
+    background: #dddddd;
+}
+#lampStatus_CLEAR{
+    color: #2b2b2b;
+    background: #ccffcc;
+}
+#lampStatus_FULL_COMBO{
+    color: #2b2b2b;
+    background: #ffffcc;
+}
+#totalCntArea{
+    margin: 0 auto;
+    text-align: center;
+    width: 160px;
+    height: auto;
+    color: aliceblue;
+    padding-top: 10px;
 }
 /*====================================================================
 #table_int アコーディオン内の表
@@ -96,20 +145,22 @@ th{
     width: 100%;
     min-width: 100px;
     border-collapse: collapse;
-    border: 1px solid;
+    border: 1px solid #2b2b2b;
     table-layout: fixed;
     word-break: break-all;
     word-wrap: break-word;
 }
 #app .ac_one .ac_inner #table_int th{
     border-collapse: collapse;
-    border: 1px solid;
     font-size: 2vmin;
+}
+#app .ac_one .ac_inner #table_int th{
+    color: aliceblue;
 }
 
 #app .ac_one .ac_inner #table_int  tbody tr td{
     border-collapse: collapse;
-    border: 1px solid;
+    border: 1px solid #2b2b2b;
     font-size: 1.8vmin;
 }
 #app .ac_one .ac_inner #table_int #th_symbol{
@@ -121,10 +172,9 @@ th{
 #app .ac_one .ac_inner #table_int tbody tr #td_lamp img{
     width: 100%;
     height: auto;
-    /*max-height: 6em;*/
     margin : 0 auto;
     display: flex;
-    align-items: flex-start;
+    /*align-items: flex-start;*/
     vertical-align: middle;
     object-fit: cover;
     cursor: pointer;
