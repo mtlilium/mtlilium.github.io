@@ -116,6 +116,7 @@ $(document).ready(function () {
     $.getJSON($("meta[name=dani_data]").attr("content"), function (dani) {
         dani_info = dani;
     });
+
 });
 
 // スクロールすると丈夫に固定されるナビゲーション
@@ -371,6 +372,11 @@ $(document).on('change', '#score_box', function() {
     }else{
         $(this).val(m_data['score']);
     }
+});
+
+//ファボ更新
+$(document).on('click', '#fav_icon', function (){
+    console.log("fav!!");
 });
 
 

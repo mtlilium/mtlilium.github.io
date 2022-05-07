@@ -429,7 +429,7 @@ th{
 
 #lamp_menu{
     text-align: center;
-    width: 8.5em;
+    width: 10em;
     margin-bottom: 1%;
 }
 #score_box_container{
@@ -446,7 +446,7 @@ th{
 .far {
     cursor: pointer;
     color:orange;
-    font-size:40px;
+    font-size:30px;
 }
 .fas{
     cursor:pointer;
