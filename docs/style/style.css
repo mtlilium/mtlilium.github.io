@@ -335,19 +335,27 @@ th{
     color: rgba(255, 255, 255, 0.75);
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.95);
 }
+#app .ac_inner{
+    border-left: 2px solid;
+    border-left-color: rgba(0, 127, 128, 0.68);
+    border-right: 2px solid;
+    border-right-color: rgba(0, 127, 128, 0.68);
+    border-bottom: 2px solid;
+    border-bottom-color: rgba(0, 127, 128, 0.68);
+}
 #app .ac2_header .items_header{
-    height: fit-content;
-    display:flex;
-    padding: .2em;
+    padding: 5px 7%;
+    text-align: center;
+    cursor: pointer;
+    transition-duration: 0.2s;
 }
 #app .ac2_header .symbol_header{
-    position: relative;
-    font-size: 2em;
+    font-size: 1em;
     vertical-align: middle;
     object-fit: cover;
 }
 #app .ac2_header .lamp_cnt_header{
-    padding-left: 4em;
+    font-size: 50%;
 }
 #app .ac2_one .ac2_header:hover {
     opacity: .8;

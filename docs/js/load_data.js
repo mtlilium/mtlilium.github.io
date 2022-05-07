@@ -64,7 +64,7 @@ function getLevelLampStatus(lv) {
     let num_clear = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "CLEAR" && c["★"] == lv).length;
     let num_full_combo = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "FULL COMBO" && c["★"] == lv).length;
     let num_total = num_clear + num_full_combo + num_no_play;
-    return "All: " + num_total + " NP: " + num_no_play + " C: " + num_clear + " FC: " + num_full_combo;
+    return "All: " + num_total + "  " + " NP: " + num_no_play + "  " + " C: " + num_clear + "  "  + " FC: " + num_full_combo;
 }
 // header.json 読み込み => Googleスプレッドシートへのアクセス
 $(document).ready(function () {
@@ -87,7 +87,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     let navBar = $("#navBar");
     $(window).scroll(function (){
-        if($(this).scrollTop() >= $("#app").offset().top){
+        if($(this).scrollTop() >= $("#lampStatus").offset().top){
             navBar.addClass('fixedBar');
         }else{
             navBar.removeClass('fixedBar');
@@ -124,8 +124,6 @@ function makeTable(chart,symbol){
             console.log(lv + ":" + music.length + "譜面")
             console.log(music)
             // アコーディオン部
-            // $("<div class='ac_one'" + "id=lv" + lv + "><div class='ac_header'>" + symbol + lv + "(" + music.length + " Charts)" +
-            //     "<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
             $("<div class='ac2_one'" + "id=lv" + lv + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + symbol + lv + "</div>" +
                 "<div class='lamp_cnt_header'>" + "Total: 00 NP: 00 C: 00 FC: 00" + "</div>" +
             "<div class='i_box'><i class='one_i'></i></div></div></div><div class='ac_inner'>").appendTo(obj);
@@ -168,7 +166,7 @@ function makeTable(chart,symbol){
     }
 
     makePanel(header_info);
-    setAccordionColor();
+    // setAccordionColor();
 };
 
 //アコーディオン開け閉め
@@ -341,7 +339,7 @@ function makeDaniTable(){
     let obj = $("#app");
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
-
+    $("#panel").html("");
     for(let i = 0; i < dani_rank.length; ++i){
         let d = dani_info["season_" + header_info["season"].slice(-1)[0]]; // 書き方 d["初段"]
         // 該当する段位が存在すればアコーディオンリスト 1 つ生成
