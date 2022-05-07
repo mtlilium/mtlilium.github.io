@@ -377,6 +377,8 @@ $(document).on('change', '#score_box', function() {
 //ファボ更新
 $(document).on('click', '#fav_icon', function (){
     console.log("fav!!");
+    console.log($(this))
+    $(this).toggleClass("fas");
 });
 
 
