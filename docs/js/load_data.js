@@ -10,6 +10,7 @@ let max_score = 1000000;
 let min_score = 0;
 const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.J.K.L" : /^[I-Li-l]/, "M.N.O.P" :  /^[M-Pm-p]/, "Q.R.S.T" : /^[Q-Tq-t]/, "U.V.W.X.Y.Z" : /^[U-Zu-z]/, "OTHERS" : /^([^A-Za-z])/};
 const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"]
+const num_recommend = 10;
 function isNumber(numVal){
     // チェック条件パターン
     const pattern = RegExp(/^([1-9]\d*|0)$/);
@@ -48,24 +49,57 @@ function changeScoreText(tr_obj, lamp, new_score){
         tr_obj.find('#td_score').text(new_score);
     }
 }
+
+//全体のランプ状況
 function setLampStatus(){
     let num_no_play = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "NO PLAY").length;
     let num_clear = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "CLEAR").length;
     let num_full_combo = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "FULL COMBO").length;
     let num_total = num_clear + num_full_combo + num_no_play;
-    console.log(num_no_play, num_clear, num_full_combo);
-    console.log($("#panel #lampStatus_NO_PLAY").text())
+
     $("#lampStatus_NO_PLAY").text(num_no_play); //NO PLAY の数;
     $("#lampStatus_CLEAR").text(num_clear); //CLEAR の数;
     $("#lampStatus_FULL_COMBO").text(num_full_combo); //FULL COMBO の数;
     $("#totalCntArea").text("Total " + num_total + " Charts");
+    return {"NO PLAY": num_no_play, "CLEAR": num_clear, "FULL COMBO": num_full_combo, "TOTAL": num_total}
 }
+
+//個々の★のランプ状況 テキスト
 function getLevelLampStatus(lv) {
     let num_no_play = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "NO PLAY" && c["★"] == lv).length;
     let num_clear = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "CLEAR" && c["★"] == lv).length;
     let num_full_combo = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "FULL COMBO" && c["★"] == lv).length;
     let num_total = num_clear + num_full_combo + num_no_play;
     return "All: " + num_total + "  " + " NP: " + num_no_play + "  " + " C: " + num_clear + "  "  + " FC: " + num_full_combo;
+}
+// insa
+function getTodayRecommend(num){
+    let dt = new Date();
+    let y = dt.getFullYear();
+    let m = dt.getMonth() + 1;
+    m = ( ( m < 10 ) ? '0' : '' ) + m;
+    let d = dt.getDate();
+    d = ( ( d < 10 ) ? '0' : '' ) + d;
+    //. 今日の午前零時のタイムスタンプをシードとして取得
+    dt = new Date( y + '-' + m + '-' + d + ' 00:00:00' );
+    let seed = dt.getTime();
+    //. 今日の午前零時のタイムスタンプをシードに関数を初期化
+    let random = new OriginalRandom(seed);
+    let res = [];
+    while(res.length<num){
+        let item = insane_chart_info[random.nextInt(0, insane_chart_info.length-1)];
+        if(item in res === false){
+            res.push(insane_chart_info[random.nextInt(0, insane_chart_info.length-1)]);
+        }
+    }
+    res.sort((a, b) => {
+        a = a["live_name"].toString().toLowerCase();
+        b = b["live_name"].toString().toLowerCase();
+        if(a < b) return -1;
+        else if(a > b) return 1;
+        return 0;
+    });
+    return res;
 }
 // header.json 読み込み => Googleスプレッドシートへのアクセス
 $(document).ready(function () {
@@ -180,6 +214,49 @@ function makeDefaultFolder(){
 }
 function makeCustomFolder(){
     let symbol = header_info["symbol"];
+    //Favorite フォルダ
+    //RECOMMEND フォルダ
+    let rec_music = getTodayRecommend(num_recommend);
+    if(rec_music.length){
+        // アコーディオン部
+        $("#custom_folder").append("<div class='ac2_one' id='recommend'><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + "RECOMMEND" + "</div>" +
+            "</div></div><div class='ac_inner'></div>");
+        $("#recommend").find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
+        // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
+        $("#recommend").find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
+        // 行追加
+        for(let j = 0; j < rec_music.length; ++j){
+            let lv = rec_music[j]["★"];
+            //localStorage["live_id"] からクリア状況データを取得
+            let rec_music_localData = getMusic_LocalData(rec_music[j]["live_id"]);
+            // music[j]["live_id"] から row を特定できるようにする
+            let row = $("<tr id='tr_" + rec_music[j]["live_id"] + "' ></tr>");
+            changeBgColor(row, lamp_colors[rec_music_localData["lamp"]]);
+            //symbol
+            $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
+            //lamp
+            // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
+            $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
+            //jacket
+            $("<td id='td_jacket'><img src='" + root_path["upload"] + rec_music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
+            //Title
+            $("<td id='td_title'><a href=" + root_path["live"] + rec_music[j]["live_id"] + ">" + rec_music[j]["live_name"] + "</a></td>").appendTo(row);
+            //Artist
+            $("<td id='td_artist'>" + rec_music[j]["artist"] + "</td>").appendTo(row);
+            //Author
+            $("<td id='td_author'>" + rec_music[j]["author"] + "</td>").appendTo(row);
+            //Level(公式難易度)
+            $("<td id='td_level'>" + rec_music[j]["level"] + "</td>").appendTo(row);
+            //Score(localStorage["live_id"]で管理)
+            if(rec_music_localData["lamp"] === "NO PLAY"){
+                $("<td id='td_score'>" + "NO PLAY" + "</td>").appendTo(row);
+            }else{
+                $("<td id='td_score'>" + rec_music_localData["score"] + "</td>").appendTo(row);
+            }
+            //追加
+            $("#recommend").find(".ac_inner .box_one tbody").append(row);
+        }
+    }
     // [A to Z & OTHERS フォルダ]
     for(let i = 0; i < initial_regax.length; ++i){
         let regax_key = initial_regax[i];
