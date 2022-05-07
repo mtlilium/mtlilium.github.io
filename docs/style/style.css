@@ -34,6 +34,10 @@ th{
     padding-bottom: 100px;
 }
 
+#app{
+    width: 90vw;
+    margin: 0 auto;
+}
 
 /*====================================================================
 #navBar ナビバー
@@ -227,101 +231,51 @@ th{
 #table_int tbody tr #td_score{
     text-align: center;
 }
-/*====================================================================
-#app .ac_one
-====================================================================*/
-#app .ac_one {
-    width: 80%;
-    height: auto;
-    max-width: 1200px;
-    min-width: 200px;
-    margin: 0 auto;
-}
-#app .ac_one .ac_header {
-    color: #fff;
-    font-size: 1.5em;
-    font-weight: bold;
-    padding: 20px 11%;
-    text-align: center;
-    position: relative;
-    z-index: +1;
-    cursor: pointer;
-    transition-duration: 0.2s;
-}
-
-#app .ac_one .ac_header:hover {
-    opacity: .8;
-}
-#app .ac_one .ac_header .i_box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    top: 50%;
-    right: 5%;
-    width: 20px;
-    height: 20px;
-    border: 1px solid #fff;
-    /*margin-top: -20px;*/
-    box-sizing: border-box;
-    -webkit-transform: rotate(45deg);
-    transform: rotate(45deg);
-    transform-origin: center center;
-    transition-duration: 0.2s;
-}
-#app .ac_one .ac_header .i_box .one_i {
-    display: block;
-    width: 18px;
-    height: 18px;
-    -webkit-transform: rotate(45deg);
-    transform: rotate(45deg);
-    transform-origin: center center;
-    transition-duration: 0.2s;
-    position: relative;
-}
-#app .ac_one .ac_header.open .i_box {
-    -webkit-transform: rotate(-360deg);
-    transform: rotate(-360deg);
-}
-#app .ac_one .ac_header .i_box .one_i:before, #app .ac_one .ac_header .i_box .one_i:after {
-    display: flex;
-    content: '';
-    background-color: #fff;
-    border-radius: 10px;
-    width: 18px;
-    height: 4px;
-    position: absolute;
-    top: 7px;
-    left: 0;
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-    transform-origin: center center;
-}
-#app .ac_one .ac_header .i_box .one_i:before {
-    width: 4px;
-    height: 18px;
-    top: 0;
-    left: 7px;
-}
-#app .ac_one .ac_header.open .i_box .one_i:before {
-    content: none;
-}
-#app .ac_one .ac_header.open .i_box .one_i:after {
-    -webkit-transform: rotate(-45deg);
-    transform: rotate(-45deg);
-}
-#app .ac_one .ac_inner {
-    display: none;
-}
-#app .ac_one .ac_inner .box_one {
-    height: auto;
-}
 
 /*====================================================================
 #app .ac2_one 本番用
 ====================================================================*/
+/*タブ実装*/
+#app .tab_area {
+    margin:0 auto;
+    display: -webkit-box;
+    display: flex;
+    justify-content: center;
+}
+#app .tab_area .tab_button {
+    width: 120px;
+    padding: 8px 0;
+    color: #333;
+    background: #f5f7f8;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease 0s;
+}
+#app .tab_area .tab_button.folder_active{
+    background:#07539f;
+    color:#fff;
+}
+#app .tab_area .tab_button:hover{
+    background-color: #dce1e4;
+}
+#app #contents_area{
+    max-width: 1200px;
+    margin: 0 auto;
+    border: solid 10px #e3ebf3;
+    padding: 20px;
+    background-color: rgba(20, 12, 128, 0.28);
+}
+
+#app .folder_content {
+    display:none;
+}
+
+#app .folder_content.folder_active{
+    display: block;
+}
+
 #app .ac2_one {
-    width: 80%;
+    width: auto;
     max-width: 1200px;
     min-width: 200px;
     margin: 0 auto;

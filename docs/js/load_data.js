@@ -8,7 +8,8 @@ let insane_chart_info; // 発狂難易度表入り譜面
 let dani_info;
 let max_score = 1000000;
 let min_score = 0;
-
+const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.J.K.L" : /^[I-Li-l]/, "M.N.O.P" :  /^[M-Pm-p]/, "Q.R.S.T" : /^[Q-Tq-t]/, "U.V.W.X.Y.Z" : /^[U-Zu-z]/, "OTHERS" : /^([^A-Za-z])/};
+const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"]
 function isNumber(numVal){
     // チェック条件パターン
     const pattern = RegExp(/^([1-9]\d*|0)$/);
@@ -112,21 +113,33 @@ function makePanel(headerInfo){
 }
 
 // 発狂難易度のテーブルを生成
-function makeTable(chart,symbol){
+function makeTable(){
     let obj = $("#app");
     obj.html(""); // 初期化
+    obj.load("./tmp/musicTable.html", function (){
+        //default folder
+        makeDefaultFolder();
+        //custom folder
+        makeCustomFolder();
+        //panel
+        makePanel(header_info);
+    });
+};
+
+function makeDefaultFolder(){
     // header.json に書かれている level_order から順番に生成
+    let symbol = header_info["symbol"];
     for(let i = 0; i < header_info["level_order"].length; ++i){
         let lv = header_info["level_order"][i];
-        let music = chart.filter(c => c["★"] == lv);
+        let music = chart_info.filter(c => c["★"] == lv);
         // 該当する譜面が存在すればアコーディオンリスト 1 つ生成
         if(music.length){
             console.log(lv + ":" + music.length + "譜面")
             console.log(music)
             // アコーディオン部
-            $("<div class='ac2_one'" + "id=lv" + lv + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + symbol + lv + "</div>" +
+            $("#default_folder").append("<div class='ac2_one'" + "id=lv" + lv + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + symbol + lv + "</div>" +
                 "<div class='lamp_cnt_header'>" + "Total: 00 NP: 00 C: 00 FC: 00" + "</div>" +
-            "<div class='i_box'><i class='one_i'></i></div></div></div><div class='ac_inner'>").appendTo(obj);
+                "</div></div><div class='ac_inner'>");
             $("#lv" + lv).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
             // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
             $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
@@ -164,14 +177,76 @@ function makeTable(chart,symbol){
             $("#lv" + lv).find(".ac2_header .lamp_cnt_header").text(getLevelLampStatus(lv));
         }
     }
+}
+function makeCustomFolder(){
+    let symbol = header_info["symbol"];
+    // [A to Z & OTHERS フォルダ]
+    for(let i = 0; i < initial_regax.length; ++i){
+        let regax_key = initial_regax[i];
+        let regax_key_id = regax_key.split(".").join("");
+        let music = insane_chart_info.filter(c => initial_regex_pt[regax_key].test(c["live_name"]));
+        music.sort((a, b) => {
+            a = a["live_name"].toString().toLowerCase();
+            b = b["live_name"].toString().toLowerCase();
+            if(a < b) return -1;
+            else if(a > b) return 1;
+            return 0;
+        });
+        // 該当する譜面が存在すればアコーディオンリスト 1 つ生成
+        if(music.length) {
+            // アコーディオン部
+            $("#custom_folder").append("<div class='ac2_one'" + "id=" + regax_key_id + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + regax_key + "</div>" +
+                "</div></div><div class='ac_inner'></div>");
+            $("#" + regax_key_id).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
+            // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
+            $("#" + regax_key_id).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
+            // 行追加
+            for(let j = 0; j < music.length; ++j){
+                let lv = music[j]["★"];
+                //localStorage["live_id"] からクリア状況データを取得
+                let music_localData = getMusic_LocalData(music[j]["live_id"]);
+                // music[j]["live_id"] から row を特定できるようにする
+                let row = $("<tr id='tr_" + music[j]["live_id"] + "' ></tr>");
+                changeBgColor(row, lamp_colors[music_localData["lamp"]]);
+                //symbol
+                $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
+                //lamp
+                // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
+                $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
+                //jacket
+                $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
+                //Title
+                $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
+                //Artist
+                $("<td id='td_artist'>" + music[j]["artist"] + "</td>").appendTo(row);
+                //Author
+                $("<td id='td_author'>" + music[j]["author"] + "</td>").appendTo(row);
+                //Level(公式難易度)
+                $("<td id='td_level'>" + music[j]["level"] + "</td>").appendTo(row);
+                //Score(localStorage["live_id"]で管理)
+                if(music_localData["lamp"] === "NO PLAY"){
+                    $("<td id='td_score'>" + "NO PLAY" + "</td>").appendTo(row);
+                }else{
+                    $("<td id='td_score'>" + music_localData["score"] + "</td>").appendTo(row);
+                }
+                //追加
+                $("#" + regax_key_id).find(".ac_inner .box_one tbody").append(row);
+            }
+        }
+    }
+}
 
-    makePanel(header_info);
-    // setAccordionColor();
-};
+//タブ切替 default folder <=> custom folder
+$(document).on('click', '#app .tab_area .tab_button', function (){
+    let index = $("#app .tab_area .tab_button").index(this);
+    $("#app .folder_content, #app .tab_area .tab_button").removeClass("folder_active");
+    $(this).addClass('folder_active');
+    $('#app .folder_content').eq(index).addClass("folder_active");
+});
 
 //アコーディオン開け閉め
 $(document).on('click','#app .ac2_one .ac2_header',function(){
-    //クリックされた.ac_oneの中の.ac_headerに隣接する.ac_innerが開いたり閉じたりする。
+    //クリックされた.ac_oneの中の.ac_headerに隣接する.ac_innerが開いたり閉じたりする
     $(this).next('.ac_inner').slideToggle();
     $(this).toggleClass("open");
 });
@@ -189,10 +264,12 @@ $(document).on('change', '#lamp_menu', function(){
     console.log(r)
     let id = $(this).attr('class');
     let m_data = getMusic_LocalData(id);
-    changeBgColor($("#tr_" + id), lamp_colors[r]);
+    changeBgColor($("#default_folder #tr_" + id), lamp_colors[r]);
+    changeBgColor($("#custom_folder #tr_" + id), lamp_colors[r]);
     $('#score_box').prop("disabled", r === 'NO PLAY');
     //scoreテキストも更新
-    changeScoreText($("#tr_" + id), r, m_data['score']);
+    changeScoreText($("#default_folder #tr_" + id), r, m_data['score']);
+    changeScoreText($("#custom_folder #tr_" + id), r, m_data['score']);
     //セーブデータ更新
     m_data['lamp'] = r;
     localStorage.setItem(id, JSON.stringify(m_data));
@@ -210,7 +287,8 @@ $(document).on('change', '#score_box', function() {
     let m_data = getMusic_LocalData(id);
     //整数値以外をはじく (最大値 1000000)
     if(isNumber(v) && parseInt(v) <= max_score){
-        changeScoreText($("#tr_" + id), m_data['lamp'], v);
+        changeScoreText($("#default_folder #tr_" + id), m_data['lamp'], v);
+        changeScoreText($("#custom_folder #tr_" + id), m_data['lamp'], v);
         m_data['score'] = v;
         localStorage.setItem(id, JSON.stringify(m_data));
     }else{
@@ -219,7 +297,7 @@ $(document).on('change', '#score_box', function() {
 });
 
 
-//１．クリックイベントを判定してポップアップ消す
+//範囲外クリックでポップアップ消す
 $(document).on('click', function(e) {
     // ２．クリックされた場所の判定
     if(!$(e.target).closest('.popup_content').length && !$(e.target).closest('#td_lamp').length){
@@ -310,7 +388,7 @@ $(document).on('click','#nav_about',function(){
 });
 //難易度表ページ遷移
 $(document).on('click','#nav_charts',function(){
-    makeTable(insane_chart_info, header_info["symbol"]);
+    makeTable();
     console.log("show: charts");
 });
 //段位認定ページ遷移
@@ -400,4 +478,29 @@ function makeSetting(){
     let obj = $("#app");
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
+}
+
+
+
+
+//雑多
+class OriginalRandom {
+    constructor(seed = 19681106) {
+        this.x = 31415926535;
+        this.y = 8979323846;
+        this.z = 2643383279;
+        this.w = seed;
+    }
+    // XorShift
+    next() {
+        let t;
+        t = this.x ^ (this.x << 11);
+        this.x = this.y; this.y = this.z; this.z = this.w;
+        return this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8));
+    }
+    // min以上max以下の乱数を生成する
+    nextInt(min, max) {
+        const r = Math.abs(this.next());
+        return min + (r % (max + 1 - min));
+    }
 }
