@@ -166,7 +166,7 @@ function makeDefaultFolder(){
     let symbol = header_info["symbol"];
     for(let i = 0; i < header_info["level_order"].length; ++i){
         let lv = header_info["level_order"][i];
-        let music = chart_info.filter(c => c["★"] == lv);
+        let music = insane_chart_info.filter(c => c["★"] == lv);
         // 該当する譜面が存在すればアコーディオンリスト 1 つ生成
         if(music.length){
             console.log(lv + ":" + music.length + "譜面")
@@ -213,9 +213,65 @@ function makeDefaultFolder(){
         }
     }
 }
+
+function makeFavoriteFolder(){
+    let symbol = header_info["symbol"];
+    let music = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["fav"] === true);
+    music.sort((a, b) => {
+        a = a["live_name"].toString().toLowerCase();
+        b = b["live_name"].toString().toLowerCase();
+        if(a < b) return -1;
+        else if(a > b) return 1;
+        return 0;
+    });
+    // アコーディオン部
+    if(!$("#favorite").length){
+        $("#custom_folder").append("<div class='ac2_one' id='favorite'><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + "FAVORITE" + "</div>" +
+            "</div></div><div class='ac_inner'>");
+        $("#favorite").find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
+        // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
+        $("#favorite").find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th>" +
+            "<th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
+    }else{
+        $("#favorite").find(".ac_inner .box_one tbody").html("");
+    }
+
+    for(let j = 0; j < music.length; ++j){
+        let lv = music[j]["★"];
+        //localStorage["live_id"] からクリア状況データを取得
+        let music_localData = getMusic_LocalData(music[j]["live_id"]);
+        // music[j]["live_id"] から row を特定できるようにする
+        let row = $("<tr id='tr_" + music[j]["live_id"] + "' ></tr>");
+        changeBgColor(row, lamp_colors[music_localData["lamp"]]);
+        //symbol
+        $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
+        //lamp
+        // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
+        $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
+        //jacket
+        $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
+        //Title
+        $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
+        //Artist
+        $("<td id='td_artist'>" + music[j]["artist"] + "</td>").appendTo(row);
+        //Author
+        $("<td id='td_author'>" + music[j]["author"] + "</td>").appendTo(row);
+        //Level(公式難易度)
+        $("<td id='td_level'>" + music[j]["level"] + "</td>").appendTo(row);
+        //Score(localStorage["live_id"]で管理)
+        if(music_localData["lamp"] === "NO PLAY"){
+            $("<td id='td_score'>" + "NO PLAY" + "</td>").appendTo(row);
+        }else{
+            $("<td id='td_score'>" + music_localData["score"] + "</td>").appendTo(row);
+        }
+        //追加
+        $("#favorite").find(".ac_inner .box_one tbody").append(row);
+    }
+}
 function makeCustomFolder(){
     let symbol = header_info["symbol"];
     //Favorite フォルダ
+    makeFavoriteFolder();
     //RECOMMEND フォルダ
     let rec_music = getTodayRecommend(num_recommend);
     if(rec_music.length){
@@ -376,9 +432,12 @@ $(document).on('change', '#score_box', function() {
 
 //ファボ更新
 $(document).on('click', '#fav_icon', function (){
-    console.log("fav!!");
-    console.log($(this))
+    let id = $("#editInfo_fav").attr('class');
+    let m_data = getMusic_LocalData(id);
+    m_data['fav'] = !m_data['fav'];
+    localStorage.setItem(id, JSON.stringify(m_data));
     $(this).toggleClass("fas");
+    makeFavoriteFolder();
 });
 
 
@@ -427,10 +486,14 @@ function editInfo(id){
         $("#editInfo_title").text(target["live_name"]);
         $("#editInfo_artist").text(target["artist"]);
         $("#lamp_menu").val(getMusic_LocalData(target["live_id"])['lamp']);
-        $("#score_box").val(getMusic_LocalData(target["live_id"])['score'])
+        $("#score_box").val(getMusic_LocalData(target["live_id"])['score']);
         $("#lamp_menu").attr('class', target["live_id"]);
         $("#score_box").attr('class', target["live_id"]);
-        $('#score_box').prop("disabled", getMusic_LocalData(target["live_id"])['lamp'] === 'NO PLAY');
+        $("#score_box").prop("disabled", getMusic_LocalData(target["live_id"])['lamp'] === 'NO PLAY');
+        $("#editInfo_fav").attr('class', target["live_id"]);
+        if(getMusic_LocalData(target["live_id"])['fav']){
+            $("#fav_icon").toggleClass("fas");
+        }
     });
     //表示
     $('.popup').addClass('popup_show').fadeIn();
