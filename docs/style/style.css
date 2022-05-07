@@ -256,7 +256,7 @@ th{
     color:#fff;
 }
 #app .tab_area .tab_button:hover{
-    background-color: #dce1e4;
+    opacity: .6;
 }
 #app #contents_area{
     max-width: 1200px;
