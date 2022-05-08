@@ -50,6 +50,19 @@ function changeScoreText(tr_obj, lamp, new_score){
     }
 }
 
+function calAveScore(lv){
+    // NO PLAY は除く
+    let m = insane_chart_info.filter(c =>(c["★"] == lv) && (getMusic_LocalData(c["live_id"])["lamp"] !== "NO PLAY"));
+    if(!m.length){
+        return 0;
+    }
+    let sum = 0;
+    for(let i=0; i<m.length; i++){
+        sum += parseInt(getMusic_LocalData(m[i]["live_id"])["score"]);
+        console.log(sum);
+    }
+    return sum / m.length;
+}
 //全体のランプ状況
 function setLampStatus(){
     let num_no_play = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "NO PLAY").length;
@@ -72,7 +85,7 @@ function getLevelLampStatus(lv) {
     let num_total = num_clear + num_full_combo + num_no_play;
     return "All: " + num_total + "  " + " NP: " + num_no_play + "  " + " C: " + num_clear + "  "  + " FC: " + num_full_combo;
 }
-// insa
+// 日付固定のレコメンド譜面を取得
 function getTodayRecommend(num){
     let dt = new Date();
     let y = dt.getFullYear();
@@ -123,7 +136,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     let navBar = $("#navBar");
     $(window).scroll(function (){
-        if($(this).scrollTop() >= $("#lampStatus").offset().top){
+        if($(this).scrollTop() >= $("#panel").offset().top){
             navBar.addClass('fixedBar');
         }else{
             navBar.removeClass('fixedBar');
@@ -213,7 +226,6 @@ function makeDefaultFolder(){
         }
     }
 }
-
 function makeFavoriteFolder(){
     let symbol = header_info["symbol"];
     let music = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["fav"] === true);
@@ -370,6 +382,64 @@ function makeCustomFolder(){
     }
 }
 
+function makeStats(){
+    let obj = $("#app");
+    obj.html(""); // 初期化
+    $("#panel").css("visibility", "hidden"); //パネル隠す
+    $("#panel").html("");
+    let lamp_stats = setLampStatus();
+    let ave_scores = {};
+    for(let i=0; i<header_info["level_order"].length; i++){
+        ave_scores["★" + header_info["level_order"][i]] = calAveScore(header_info["level_order"][i]);
+    }
+    obj.load("./tmp/StatsPage.html", function (){
+        //self_name
+        //self_img
+        //self_profile
+        //ave_score
+        drawChart($("#score_chart"), ave_scores);
+
+        //skill_pt
+        //dani
+    });
+}
+
+// グラフ描画処理
+function drawChart(ctx_obj, data) {
+    let ctx = ctx_obj;
+    window.score_chart = new Chart(ctx, { // インスタンスをグローバル変数で生成
+        type: 'bar',
+        data: { // ラベルとデータセット
+            labels: Object.keys(data),
+            datasets: [{
+                data: Object.values(data),
+                backgroundColor: 'rgba(0, 134, 197, 0.7)', // 棒の塗りつぶし色
+                borderColor: 'rgba(0, 134, 197, 1)', // 棒の枠線の色
+                borderWidth: 1, // 枠線の太さ
+            }],
+        },
+        options: {
+            responsive: true,  // canvasサイズ自動設定機能を使わない。HTMLで指定したサイズに固定
+            scales: {                          // 軸設定
+                xAxes: [{
+                    display: true
+                }],
+                yAxes: [{
+                    display: true,                 // 表示の有無
+                    ticks: {                       // 目盛り
+                        min: Math.max(parseInt(parseInt(Math.min(...Object.values(data)) - 50000)), min_score),                        // 最小値
+                        max: Math.max(Math.max(...Object.values(data)), max_score)                 // 最大値
+                    },
+                }],
+
+            },
+            legend: {
+                display: false, // 凡例を非表示
+            }
+        }
+    });
+}
+
 //タブ切替 default folder <=> custom folder
 $(document).on('click', '#app .tab_area .tab_button', function (){
     let index = $("#app .tab_area .tab_button").index(this);
@@ -451,25 +521,6 @@ $(document).on('click', function(e) {
     }
 });
 
-function setAccordionColor(){
-    var n = $('#app').find('.ac_one .ac_header').length;
-    let start_hsl = [202, 100, 50];
-    let end_hsl = [360+12, 100, 50];
-    for(let i = 0; i < n; ++i){
-        var hsvText = "hsl("+ Math.floor(start_hsl[0] + ((end_hsl[0] - start_hsl[0])*i/n)) + ",60% , 50%)";
-        $('#app .ac_one .ac_header').eq(i).css({
-            'background-color': hsvText
-        });
-        $('#app .ac_one .ac_inner').eq(i).css({
-            'border-left': "2px solid",
-            'border-left-color': hsvText,
-            'border-right': "2px solid",
-            'border-right-color': hsvText,
-            'border-bottom': "2px solid",
-            'border-bottom-color': hsvText
-        })
-    }
-}
 
 function editInfo(id){
     let target = insane_chart_info.filter(c =>  c["live_id"] === id)[0];
@@ -609,19 +660,8 @@ function makeDaniTable(){
             // }
         }
     }
-    setAccordionColor();
 }
-function makeStats(){
-    let obj = $("#app");
-    obj.html(""); // 初期化
-    $("#panel").css("visibility", "hidden");
 
-    var a = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "FULL COMBO"); //FULL COMBO の数
-    var b = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "CLEAR"); //CLEAR の数
-    var c = insane_chart_info.filter(c =>getMusic_LocalData(c["live_id"])["lamp"] === "NO PLAY"); //NO PLAY の数
-    console.log(a)
-    console.log(a.length)
-}
 function makeSetting(){
     let obj = $("#app");
     obj.html(""); // 初期化
