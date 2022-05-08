@@ -282,27 +282,63 @@ th{
     margin: 0 auto;
 }
 #app .ac2_header{
+    /*フォルダー内の文字色固定*/
+    color: rgba(255, 255, 255, 0.75);
+}
+/*DEFAULT FOLDER の色*/
+#app #default_folder .ac2_header{
     background: rgba(0, 127, 128, 0.68);
     -webkit-box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
     box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
     border: 1px solid rgba(128, 255, 255, 0.25);
-    /*固定*/
-    color: rgba(255, 255, 255, 0.75);
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.95);
 }
-#app .ac_inner{
-    border-left: 2px solid;
-    border-left-color: rgba(0, 127, 128, 0.68);
-    border-right: 2px solid;
-    border-right-color: rgba(0, 127, 128, 0.68);
-    border-bottom: 2px solid;
-    border-bottom-color: rgba(0, 127, 128, 0.68);
+#app #default_folder .ac_inner{
+    border: 2px solid rgba(0, 127, 128, 0.68);
+    border-top: transparent;
 }
+/*CUSTOMFOLDER FOLDER の色*/
+#app #custom_folder #favorite .ac2_header{
+    background: rgba(255, 240, 0, 0.68);
+    -webkit-box-shadow: 0px 0px 12px rgba(255, 255, 150, 0.5);
+    box-shadow: 0px 0px 12px rgba(255, 255, 150, 0.5);
+    border: 1px solid rgba(255, 255, 200, 0.25);
+    text-shadow: 0 0 10px rgba(255, 255, 150, 0.95);
+}
+#app #custom_folder #favorite .ac_inner{
+    border: 2px solid rgba(255, 240, 0, 0.68);
+    border-top: transparent;
+}
+#app #custom_folder #recommend .ac2_header{
+    background: rgba(250, 155, 155, 0.68);
+    -webkit-box-shadow: 0px 0px 12px rgba(255, 180, 255, 0.5);
+    box-shadow: 0px 0px 12px rgba(255, 180, 255, 0.5);
+    border: 1px solid rgba(255, 200, 255, 0.25);
+    text-shadow: 0 0 10px rgba(255, 180, 255, 0.95);
+}
+#app #custom_folder #recommend .ac_inner{
+    border: 2px solid rgba(250, 155, 155, 0.68);
+    border-top: transparent;
+}
+#ABCD .ac2_header, #EFGH .ac2_header, #IJKL .ac2_header, #MNOP .ac2_header, #QRST .ac2_header, #UVWXYZ .ac2_header, #OTHERS .ac2_header{
+    background: rgba(125, 100, 255, 0.68);
+    -webkit-box-shadow: 0px 0px 12px rgba(167, 119, 251, 0.5);
+    box-shadow: 0px 0px 12px rgba(167, 119, 251, 0.5);
+    border: 1px solid rgba(138, 104, 197, 0.25);
+    text-shadow: 0 0 10px rgba(167, 119, 251, 0.95);
+}
+#ABCD .ac_inner, #EFGH .ac_inner, #IJKL .ac_inner, #MNOP .ac_inner, #QRST .ac_inner, #UVWXYZ .ac_inner, #OTHERS .ac_inner{
+    border: 2px solid rgba(125, 100, 255, 0.68);
+    border-top: transparent;
+}
+
 #app .ac2_header .items_header{
     padding: 5px 7%;
     text-align: center;
     cursor: pointer;
     transition-duration: 0.2s;
+    -webkit-backface-visibility:hidden;
+    backface-visibility:hidden;
 }
 #app .ac2_header .symbol_header{
     font-size: 1em;
