@@ -246,14 +246,16 @@ th{
 #app .tab_area .tab_button {
     width: 120px;
     padding: 8px 0;
-    color: #333;
-    background: #f5f7f8;
+    color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(20, 12, 128, 0.68);
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease 0s;
+    -webkit-backface-visibility:hidden;
+    backface-visibility:hidden;
 }
 #app .tab_area .tab_button.folder_active{
-    background:#07539f;
+    background: rgba(255, 160, 52, 0.68);
     color:#fff;
 }
 #app .tab_area .tab_button:hover{
@@ -262,7 +264,8 @@ th{
 #app #contents_area{
     max-width: 1200px;
     margin: 0 auto;
-    border: solid 10px #e3ebf3;
+    border: 2px solid rgba(255, 160, 52, 0.68);
+    box-shadow: 0px 0px 5px rgba(255, 255, 150, 0.5);
     padding: 20px;
     background-color: rgba(20, 12, 128, 0.28);
 }
@@ -374,7 +377,7 @@ th{
 
 .popup_content{
     background: #fff;
-    width: 40%;
+    width: 60%;
     min-width: 200px;
     max-width: 900px;
 }
@@ -401,8 +404,8 @@ th{
     flex-flow: column;
     align-items: center;
     justify-content:space-around;
-    min-height: 20vh;
-    max-height: 35vh;
+    /*min-height: 20vh;*/
+    /*max-height: 35vh;*/
     min-width: 60%;
     background-color: aliceblue;
 }
