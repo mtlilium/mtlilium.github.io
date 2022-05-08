@@ -96,7 +96,6 @@ function getTodayRecommend(num){
     //. 今日の午前零時のタイムスタンプをシードとして取得
     dt = new Date( y + '/' + m + '/' + d + ' 00:00:00' );
     let seed = dt.getTime();
-    alert(seed);
     //. 今日の午前零時のタイムスタンプをシードに関数を初期化
     let random = new OriginalRandom(seed);
     let res = [];
