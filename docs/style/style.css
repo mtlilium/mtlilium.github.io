@@ -132,16 +132,16 @@ td{
 #lampStatus{
     display: flex;
     justify-content: center;
+    align-items: center;
     flex-flow: row;
 }
 #lampStatus span{
     display: inline-block;
     width: 100px;
-    height: 20px;
+    height: auto;
     text-align: center;
 }
 #lampStatus_NO_PLAY{
-    vertical-align: middle;
     color: #2b2b2b;
     background: #dddddd;
 }
