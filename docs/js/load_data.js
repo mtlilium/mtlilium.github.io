@@ -389,16 +389,17 @@ function makeStats(){
     $("#panel").html("");
     let lamp_stats = setLampStatus();
     let ave_scores = {};
+    let ave_scores_round = {};
     for(let i=0; i<header_info["level_order"].length; i++){
         ave_scores["★" + header_info["level_order"][i]] = calAveScore(header_info["level_order"][i]);
+        ave_scores_round[["★" + header_info["level_order"][i]]] =parseFloat(((calAveScore(header_info["level_order"][i]))*100/max_score).toFixed(1));
     }
     obj.load("./tmp/StatsPage.html", function (){
         //self_name
         //self_img
         //self_profile
         //ave_score
-        drawChart($("#score_chart"), ave_scores);
-
+        drawChart($("#score_chart"), ave_scores_round);
         //skill_pt
         //dani
     });
@@ -420,22 +421,33 @@ function drawChart(ctx_obj, data) {
         },
         options: {
             responsive: true,  // canvasサイズ自動設定機能を使わない。HTMLで指定したサイズに固定
-            scales: {                          // 軸設定
+            scales: {
                 xAxes: [{
-                    display: true
+                    display: true,
+                    gridLines: {                   // 補助線
+                        color: "rgba(255, 255, 255, 0.25)", // 補助線の色
+                    },
                 }],
                 yAxes: [{
-                    display: true,                 // 表示の有無
-                    ticks: {                       // 目盛り
-                        min: Math.max(parseInt(parseInt(Math.min(...Object.values(data)) - 50000)), min_score),                        // 最小値
-                        max: Math.max(Math.max(...Object.values(data)), max_score)                 // 最大値
+                    scaleLabel: {
+                        display: true,
+                        labelString: "(%)"
+                    },
+                    display: true,
+                    gridLines: {                   // 補助線
+                        color: "rgba(255, 255, 255, 0.25)", // 補助線の色
+                    },
+                    ticks: {
+                        min: Math.max(parseInt((Math.min(...Object.values(data)) - 10)/10)*10 , 0), // 最小値
+                        max: Math.max(Math.max(...Object.values(data)), 100) // 最大値
                     },
                 }],
 
             },
             legend: {
                 display: false, // 凡例を非表示
-            }
+            },
+
         }
     });
 }
