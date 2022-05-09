@@ -20,7 +20,7 @@ function isNumber(numVal){
 
 // セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
-//2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_dani": "三段"}
+//2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_dani": "三段", "skill_point"}
 //3. key : "insane_dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
 
 
@@ -75,6 +75,9 @@ function setLampStatus(){
     $("#lampStatus_FULL_COMBO").text(num_full_combo); //FULL COMBO の数;
     $("#totalCntArea").text("Total " + num_total + " Charts");
     return {"NO PLAY": num_no_play, "CLEAR": num_clear, "FULL COMBO": num_full_combo, "TOTAL": num_total}
+}
+function calSkillPoint(){
+
 }
 
 //個々の★のランプ状況 テキスト
@@ -190,7 +193,7 @@ function makeDefaultFolder(){
                 "</div></div><div class='ac_inner'>");
             $("#lv" + lv).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
             // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
-            $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
+            $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title' data-sort='None'>Title</th><th id='th_artist' data-sort='None'>Artist</th><th id='th_author' data-sort='None'>Author</th><th id='th_level' data-sort='None'>Level</th><th id='th_score' data-sort='None'>Score</th></tr></thead><tbody>");
             // 行追加
             for(let j = 0; j < music.length; ++j){
                 //localStorage["live_id"] からクリア状況データを取得
@@ -243,7 +246,7 @@ function makeFavoriteFolder(){
         $("#favorite").find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
         // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
         $("#favorite").find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th>" +
-            "<th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
+            "<th id='th_jacket'></th><th id='th_title' data-sort='None'>Title</th><th id='th_artist' data-sort='None'>Artist</th><th id='th_author' data-sort='None'>Author</th><th id='th_level' data-sort='None'>Level</th><th id='th_score' data-sort='None'>Score</th></tr></thead><tbody>");
     }else{
         $("#favorite").find(".ac_inner .box_one tbody").html("");
     }
@@ -292,7 +295,7 @@ function makeCustomFolder(){
             "</div></div><div class='ac_inner'></div>");
         $("#recommend").find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
         // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
-        $("#recommend").find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
+        $("#recommend").find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title' data-sort='None'>Title</th><th id='th_artist' data-sort='None'>Artist</th><th id='th_author' data-sort='None'>Author</th><th id='th_level' data-sort='None'>Level</th><th id='th_score' data-sort='None'>Score</th></tr></thead><tbody>");
         // 行追加
         for(let j = 0; j < rec_music.length; ++j){
             let lv = rec_music[j]["★"];
@@ -522,7 +525,6 @@ $(document).on('click', '#fav_icon', function (){
     makeFavoriteFolder();
 });
 
-
 //範囲外クリックでポップアップ消す
 $(document).on('click', function(e) {
     // ２．クリックされた場所の判定
@@ -533,6 +535,63 @@ $(document).on('click', function(e) {
     }
 });
 
+//Table ソート
+$(document).on('click', '#th_title, #th_artist, #th_author, #th_level, #th_score', function (){
+    // 情報取得
+    let ele = $(this).index();
+    let target_obj = $(this).parent().parent().next().children();
+    let sortFlg = $(this).data('sort');
+    $(this).data('sort', '')
+    // ソート順序
+    if(sortFlg === "" || sortFlg === "desc"){
+        sortFlg = "asc";
+        $(this).data('sort', "asc");
+    }else{
+        sortFlg = "desc";
+        $(this).data('sort', "desc");
+    }
+    // テーブルソート処理
+    sortTable(ele, target_obj, sortFlg);
+});
+
+function sortTable(ele, tar, sortFlg){
+    let arr = tar.sort(function (a, b){
+        // ソート対象が数値の場合
+        if($.isNumeric(($(a).find('td').eq(ele).text() !== 'NO PLAY') ? $(a).find('td').eq(ele).text() : 0)){
+            // "NO PLAY は下に表示
+            let aNum, bNum;
+            if(sortFlg === "desc"){
+                aNum = ($(a).find('td').eq(ele).text() !== 'NO PLAY') ? Number($(a).find('td').eq(ele).text()) : min_score - 1;
+                bNum = ($(b).find('td').eq(ele).text() !== 'NO PLAY') ? Number($(b).find('td').eq(ele).text()) : min_score - 1;
+            }else{
+                aNum = ($(a).find('td').eq(ele).text() !== 'NO PLAY') ? Number($(a).find('td').eq(ele).text()) : max_score + 1;
+                bNum = ($(b).find('td').eq(ele).text() !== 'NO PLAY') ? Number($(b).find('td').eq(ele).text()) : max_score + 1;
+            }
+
+
+            if(sortFlg == "asc"){
+                return aNum - bNum;
+            }else{
+                return bNum - aNum;
+            }
+        }else{ // ソート対象が数値でない場合
+            let sortNum = 1;
+
+            // 比較時は小文字に統一
+            if($(a).find('td').eq(ele).text().toLowerCase() > $(b).find('td').eq(ele).text().toLowerCase()){
+                sortNum = 1;
+            }else{
+                sortNum = -1;
+            }
+            if(sortFlg == "desc"){
+                sortNum *= (-1);
+            }
+
+            return sortNum;
+        }
+    });
+    tar.parent().html(arr);
+}
 
 function editInfo(id){
     let target = insane_chart_info.filter(c =>  c["live_id"] === id)[0];

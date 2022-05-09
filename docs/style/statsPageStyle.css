@@ -1,0 +1,53 @@
+#stats_frame{
+    position: relative;
+    font-size: 20px;
+    text-align: center;
+    margin: 0 auto;
+}
+#self_profile table {
+    color: #fff;
+    margin: 20px auto;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border-spacing: 0;
+}
+#self_profile table tbody{
+    width: 100vw;
+}
+#self_profile table td{
+    width: 90%;
+    padding: 5px;
+    border-bottom: 1px solid rgba(255, 160, 52, 1);
+}
+#self_profile table td:first-child{
+    color: rgba(255, 160, 52, 1);
+    text-align: left;
+}
+#self_profile table td:last-child{
+    text-align: right;
+}
+#score_chart{
+    margin: 0 auto;
+    max-width: 90%;
+    min-width: 85%;
+}
+
+@media screen and (min-width:700px) {
+    #score_chart{
+        max-width: 85%;
+    }
+}
+
+@media screen and (max-width:700px) {
+    #score_chart{
+        width: 100%;
+    }
+}
+
+
+.self_stats{
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    margin: 30px auto 0;
+}

@@ -20,6 +20,10 @@ h1 {
 
 th{
     text-align: center;
+    vertical-align: middle;
+}
+td{
+    vertical-align: middle;
 }
 
 #title_logo{
@@ -436,9 +440,6 @@ th{
 @media screen and (max-width:700px) {
     .wrap {
         flex-flow: column;
-    }
-    #editInfo_jacket {
-
     }
 }
 

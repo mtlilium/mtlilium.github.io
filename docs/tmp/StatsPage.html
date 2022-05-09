@@ -1,10 +1,42 @@
 <div id="contents_area">
 <div id="stats_frame">
   <div id="self_name"></div>
-  <div id="self_img"><img src="" alt=""></div>
-  <div id="self_profile"></div>
+  <div id="self_profile">
+    <table>
+      <tbody>
+        <tr id="prof_name">
+          <td>NAME</td>
+          <td>guest</td>
+        </tr>
+        <tr id="prof_skill_pt">
+          <td>SKILL POINT</td>
+          <td>0.0</td>
+        </tr>
+        <tr id="prof_dani">
+          <td>段位認定</td>
+          <td><img src="" alt=""></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
   <div class="self_stats" id="ave_score"><canvas id="score_chart"></canvas></div>
-  <div class="self_stats" id="skill_pt"></div>
-  <div class="self_stats" id="dani"></div>
+  <div class="self_stats" id="dani">
+    <div class="cat_name">
+      段位認定
+    </div>
+    <div class="stats_container">
+      <div class="dani_table">
+        <table>
+          <thead class='table-dark'>
+          <tr>
+            <th id='dani_num'></th><th id='dani_status'></th><th id='dani_score'></th>
+          </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 </div>
