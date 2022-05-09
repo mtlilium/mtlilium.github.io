@@ -383,6 +383,7 @@ function makeCustomFolder(){
 }
 
 function makeStats(){
+    console.log(ncmb_config.api_key)
     let obj = $("#app");
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden"); //パネル隠す
