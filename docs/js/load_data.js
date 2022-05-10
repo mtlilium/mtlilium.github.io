@@ -607,6 +607,15 @@ $(document).on('click', function(e) {
 $(document).on('click', '#th_title, #th_artist, #th_author, #th_level, #th_score', function (){
     // 情報取得
     let ele = $(this).index();
+    let asc_symbol = "▲";
+    let desc_symbol = "▼";
+
+    let siblings = $(this).parent().find("th");
+    for(let i=0; i<siblings.length; i++){
+        let text = siblings.eq(i).text();
+        siblings.eq(i).text(text.replace(asc_symbol,"").replace(desc_symbol,""));
+    }
+    let th_text = $(this).text();
     let target_obj = $(this).parent().parent().next().children();
     let sortFlg = $(this).data('sort');
     $(this).data('sort', '')
@@ -614,9 +623,11 @@ $(document).on('click', '#th_title, #th_artist, #th_author, #th_level, #th_score
     if(sortFlg === "" || sortFlg === "desc"){
         sortFlg = "asc";
         $(this).data('sort', "asc");
+        $(this).text(th_text+asc_symbol);
     }else{
         sortFlg = "desc";
         $(this).data('sort', "desc");
+        $(this).text(th_text+desc_symbol);
     }
     // テーブルソート処理
     sortTable(ele, target_obj, sortFlg);
