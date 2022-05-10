@@ -498,6 +498,9 @@ td{
     text-align: center;
     margin-bottom: 5%;
 }
+#editInfo_score_header, #editInfo_status_header{
+    font-size: 72%;
+}
 
 .far {
     cursor: pointer;

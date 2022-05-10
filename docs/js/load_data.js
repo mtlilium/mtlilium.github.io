@@ -1,4 +1,5 @@
 // 定数
+import {app, db, fb_auth, fb_fs} from "./init_firebase.js";
 const root_path = {live:"https://m.tianyi9.com/#/getlive?live_id=", upload:"https://m.tianyi9.com/upload/", user:"https://m.tianyi9.com/#/userInfo?uid=", user_info:"https://m.tianyi9.com/API/user_info?uid="};
 const lamp_colors = {"NO PLAY": "#dddddde6", "CLEAR": "#ccffcce6", "FULL COMBO": "#ffffcce6"}; // クリアランプの色
 const dani_rank = ["初段", "二段", "三段", "四段", "五段", "六段", "七段", "八段", "九段", "十段", "中伝", "皆伝"];
@@ -182,6 +183,8 @@ function getTodayRecommend(num){
     });
     return res;
 }
+
+
 // header.json 読み込み => Googleスプレッドシートへのアクセス
 $(document).ready(function () {
     $.getJSON($("meta[name=chart_data]").attr("content"), function (header) {
@@ -197,7 +200,16 @@ $(document).ready(function () {
         dani_info = dani;
     });
     checkLocalStorageSize();
+    console.log(db);
+    miria().then(r => console.log("dekita"));
 });
+
+async function miria(){
+    const querySnapshot = await fb_fs.getDocs(fb_fs.collection(db, "user_info"));
+    querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()}`);
+    });
+}
 
 // スクロールすると丈夫に固定されるナビゲーション
 $(document).ready(function () {
@@ -779,10 +791,17 @@ function makeSetting(){
     let obj = $("#app");
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
+    $("#panel").html("");
+    // const colRef = collection(db, "user_info");
+    // const newItem = doc(colRef);
+    // const data = {
+    //     name: "Los Angeles",
+    //     state: "CA",
+    //     country: "USA",
+    // }
+    // await setDoc(newItem, data);
+    console.log(_fb_auth)
 }
-
-
-
 
 //雑多
 class OriginalRandom {
