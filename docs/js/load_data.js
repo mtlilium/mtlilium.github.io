@@ -5,12 +5,27 @@ const dani_rank = ["初段", "二段", "三段", "四段", "五段", "六段", "
 let header_info; // header.json の情報
 let chart_info; // ALL
 let insane_chart_info; // 発狂難易度表入り譜面
+let skill_point_table = []; // skillpoint 計算用テーブル
+let skill_point_target_num = 30;
 let dani_info;
 let max_score = 1000000;
 let min_score = 0;
 const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.J.K.L" : /^[I-Li-l]/, "M.N.O.P" :  /^[M-Pm-p]/, "Q.R.S.T" : /^[Q-Tq-t]/, "U.V.W.X.Y.Z" : /^[U-Zu-z]/, "OTHERS" : /^([^A-Za-z])/};
 const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"]
 const num_recommend = 10;
+
+function checkLocalStorageSize(){
+    let _lsTotal = 0,
+        _xLen, _x;
+    for (_x in localStorage) {
+        if (!localStorage.hasOwnProperty(_x)) {
+            continue;
+        }
+        _xLen = ((localStorage[_x].length + _x.length) * 2);
+        _lsTotal += _xLen;
+    }
+    console.log("localStorage Total = " + (_lsTotal / 1024).toFixed(2) + " KB");
+}
 function isNumber(numVal){
     // チェック条件パターン
     const pattern = RegExp(/^([1-9]\d*|0)$/);
@@ -21,7 +36,8 @@ function isNumber(numVal){
 // セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
 //2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_dani": "三段", "skill_point"}
-//3. key : "insane_dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
+//3. key : "dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
+//4. key : "skill_point", value : {"point": 334, "targets": {"live_id": 34, ... , "live_id": 25}}
 
 
 function getMusic_LocalData(key){
@@ -59,7 +75,6 @@ function calAveScore(lv){
     let sum = 0;
     for(let i=0; i<m.length; i++){
         sum += parseInt(getMusic_LocalData(m[i]["live_id"])["score"]);
-        console.log(sum);
     }
     return sum / m.length;
 }
@@ -76,8 +91,58 @@ function setLampStatus(){
     $("#totalCntArea").text("Total " + num_total + " Charts");
     return {"NO PLAY": num_no_play, "CLEAR": num_clear, "FULL COMBO": num_full_combo, "TOTAL": num_total}
 }
-function calSkillPoint(){
 
+function initializeSkillPointTable(tar_num=skill_point_target_num){
+    let m = insane_chart_info;
+    if(!m.length){return {}};
+    for(let i=0; i<m.length; i++){
+        skill_point_table.push( {"live_id": m[i]["live_id"], "live_name": m[i]["live_name"], "★": m[i]["★"], "lamp": getMusic_LocalData(m[i]["live_id"])["lamp"], "skill_point": calSkillPoint(m[i])} );
+    }
+    skill_point_table.sort((a, b) => {
+        a = a["skill_point"];
+        b = b["skill_point"];
+        if(a < b) return 1;
+        else if(a > b) return -1;
+        return 0;
+    });
+    // console.log(skill_point_table)
+
+    // 難易度表から削除されることもあり得るので毎回リセット&セット
+    const key = "skill_point";
+    let new_obj = {"point": 0.0, "targets": {}};
+    new_obj.targets = skill_point_table.filter(function (item){return item.lamp !== "NO PLAY"}).slice(0, tar_num);
+    new_obj.point = Object.keys(new_obj.targets).reduce((sum, key) => sum + (new_obj.targets[key].skill_point || 0) , 0);
+    localStorage.setItem(key, JSON.stringify(new_obj));
+}
+
+function getSkillPoint(){
+    const key = "skill_point";
+    return JSON.parse(localStorage.getItem(key));
+}
+function calSkillPoint(m_data){
+    let lamp = getMusic_LocalData(m_data["live_id"])["lamp"]
+    let full_combo_bias = (lamp === "FULL COMBO") ? 1.2 : 1.0;
+    return parseFloat((2*full_combo_bias * 100 * getMusic_LocalData(m_data["live_id"])["score"]*Math.cbrt(parseInt(m_data["★"]))/max_score).toFixed(1));
+}
+function updateSkillPoint(id, new_rec, tar_num=skill_point_target_num){
+    let index = skill_point_table.findIndex(({live_id}) => live_id === id);
+    skill_point_table[index]["lamp"] = getMusic_LocalData(new_rec["live_id"])["lamp"];
+    skill_point_table[index]["skill_point"] = calSkillPoint(new_rec);
+    let now_point = getSkillPoint();
+    skill_point_table.sort((a, b) => {
+        a = a["skill_point"];
+        b = b["skill_point"];
+        if(a < b) return 1;
+        else if(a > b) return -1;
+        return 0;
+    });
+    // console.log(skill_point_table)
+    // console.log(getSkillPoint())
+    let new_obj = {"point": 0.0, "targets": {}};
+    new_obj.targets = skill_point_table.filter(function (item){return item.lamp !== "NO PLAY"}).slice(0, tar_num);
+    new_obj.point = parseFloat((Object.keys(new_obj.targets).reduce((sum, key) => sum + (new_obj.targets[key].skill_point || 0) , 0)).toFixed(1));
+    localStorage.setItem("skill_point", JSON.stringify(new_obj));
+    // console.log(getSkillPoint())
 }
 
 //個々の★のランプ状況 テキスト
@@ -121,18 +186,17 @@ function getTodayRecommend(num){
 $(document).ready(function () {
     $.getJSON($("meta[name=chart_data]").attr("content"), function (header) {
         $.getJSON(header.data_url, function (chart) {
-            console.log(chart);
-            console.log(header);
             header_info = header;
             chart_info = chart;
-            insane_chart_info = chart_info.filter(c => c["★"] !== ""); // // 発狂難易度表入り譜面のみをフィルタで取得
+            insane_chart_info = chart_info.filter(c => c["★"] !== ""); // 発狂難易度表入り譜面のみをフィルタで取得
+            initializeSkillPointTable();
             makeTable(insane_chart_info, header_info["symbol"]);
         });
     });
     $.getJSON($("meta[name=dani_data]").attr("content"), function (dani) {
         dani_info = dani;
     });
-
+    checkLocalStorageSize();
 });
 
 // スクロールすると丈夫に固定されるナビゲーション
@@ -178,6 +242,7 @@ function makeTable(){
 };
 
 function makeDefaultFolder(){
+    console.log(getSkillPoint())
     // header.json に書かれている level_order から順番に生成
     let symbol = header_info["symbol"];
     for(let i = 0; i < header_info["level_order"].length; ++i){
@@ -185,8 +250,6 @@ function makeDefaultFolder(){
         let music = insane_chart_info.filter(c => c["★"] == lv);
         // 該当する譜面が存在すればアコーディオンリスト 1 つ生成
         if(music.length){
-            console.log(lv + ":" + music.length + "譜面")
-            console.log(music)
             // アコーディオン部
             $("#default_folder").append("<div class='ac2_one'" + "id=lv" + lv + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'>" + symbol + lv + "</div>" +
                 "<div class='lamp_cnt_header'>" + "Total: 00 NP: 00 C: 00 FC: 00" + "</div>" +
@@ -401,6 +464,7 @@ function makeStats(){
         //self_name
         //self_img
         //self_profile
+        $("#prof_skill_pt").children().eq(1).text(getSkillPoint().point);
         //ave_score
         drawChart($("#score_chart"), ave_scores_round);
         //skill_pt
@@ -497,6 +561,8 @@ $(document).on('change', '#lamp_menu', function(){
     $("#lv" + lv).find(".ac2_header .lamp_cnt_header").text(getLevelLampStatus(lv));
     //パネル内の lampstatusも変更
     setLampStatus();
+    //skillPoint 再計算
+    updateSkillPoint(id, insane_chart_info.filter(c => c["live_id"] == id)[0]);
 });
 
 // スコア更新
@@ -513,6 +579,8 @@ $(document).on('change', '#score_box', function() {
     }else{
         $(this).val(m_data['score']);
     }
+    //skillPoint 再計算
+    updateSkillPoint(id, insane_chart_info.filter(c => c["live_id"] == id)[0]);
 });
 
 //ファボ更新
@@ -681,6 +749,9 @@ function makeAbout(){
     let obj = $("#app");
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
+    $("#panel").html("");
+    obj.load("./tmp/AboutPage.html", function (){
+    });
 }
 function makeDaniTable(){
     // 現シーズンの段位認定 dani_info["season_" + header_info["season"].slice(-1)[0]]
@@ -688,49 +759,9 @@ function makeDaniTable(){
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
     $("#panel").html("");
-    for(let i = 0; i < dani_rank.length; ++i){
-        let d = dani_info["season_" + header_info["season"].slice(-1)[0]]; // 書き方 d["初段"]
-        // 該当する段位が存在すればアコーディオンリスト 1 つ生成
-        if(dani_rank[i] in d){
-            console.log(d[dani_rank[i]])
-            // // アコーディオン部
-            $("<div class='ac_one'" + "id=" + dani_rank[i] + "><div class='ac_header'>" + dani_rank[i] + "<div class='i_box'><i class='one_i'></i></div></div><div class='ac_inner'>").appendTo(obj);
-            $("#" + dani_rank[i]).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
-            // // 表のヘッダ追加 ["(symbol)", "(lamp)", "(jacket)", Title, Artist, Author, Level, Score]
-            // $("#lv" + lv).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_symbol'>"+ symbol +"</th><th id='th_lamp'></th><th id='th_jacket'></th><th id='th_title'>Title</th><th id='th_artist'>Artist</th><th id='th_author'>Author</th><th id='th_level'>Level</th><th id='th_score'>Score</th></tr></thead><tbody>");
-            // // 行追加
-            // for(let j = 0; j < music.length; ++j){
-            //     //localStorage["live_id"] からクリア状況データを取得
-            //     let music_localData = getMusic_LocalData(music[j]["live_id"]);
-            //     // music[j]["live_id"] から row を特定できるようにする
-            //     let row = $("<tr id='tr_" + music[j]["live_id"] + "' ></tr>");
-            //     changeBgColor(row, lamp_colors[music_localData["lamp"]]);
-            //     //symbol
-            //     $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
-            //     //lamp
-            //     // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
-            //     $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
-            //     //jacket
-            //     $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "'></td>").appendTo(row);
-            //     //Title
-            //     $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
-            //     //Artist
-            //     $("<td id='td_artist'>" + music[j]["artist"] + "</td>").appendTo(row);
-            //     //Author
-            //     $("<td id='td_author'>" + music[j]["author"] + "</td>").appendTo(row);
-            //     //Level(公式難易度)
-            //     $("<td id='td_level'>" + music[j]["level"] + "</td>").appendTo(row);
-            //     //Score(localStorage["live_id"]で管理)
-            //     if(music_localData["lamp"] === "NO PLAY"){
-            //         $("<td id='td_score'>" + "NO PLAY" + "</td>").appendTo(row);
-            //     }else{
-            //         $("<td id='td_score'>" + music_localData["score"] + "</td>").appendTo(row);
-            //     }
-            //     //追加
-            //     $("#lv" + lv).find(".ac_inner .box_one tbody").append(row);
-            // }
-        }
-    }
+    obj.load("./tmp/daniTable.html", function (){
+    });
+
 }
 
 function makeSetting(){
