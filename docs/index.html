@@ -42,32 +42,34 @@
 <!--    <script defer src="https://www.gstatic.com/firebasejs/9.8.0/firebase-app.js"></script>-->
 <!--    <script defer src="https://www.gstatic.com/firebasejs/9.8.0/firebase-auth.js"></script>-->
 <!--    <script defer src="https://www.gstatic.com/firebasejs/9.8.0/firebase-firestore.js"></script>-->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import {initializeApp} from "https://www.gstatic.com/firebasejs/9.8.0/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.8.0/firebase-database.js";
-        import {doc, collection, getFirestore, addDoc, getDocs} from "https://www.gstatic.com/firebasejs/9.8.0/firebase-firestore.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7_0CWdjHDekYw7Itx19-hhmpdGmEi_ec",
-            authDomain: "llp-score-manager.firebaseapp.com",
-            projectId: "llp-score-manager",
-            storageBucket: "llp-score-manager.appspot.com",
-            messagingSenderId: "43667140212",
-            appId: "1:43667140212:web:52730c5b40fb77d7446b21"
-        };
+<!--    <script type="module">-->
+<!--        // Import the functions you need from the SDKs you need-->
+<!--        import {initializeApp} from "https://www.gstatic.com/firebasejs/9.8.0/firebase-app.js";-->
+<!--        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.8.0/firebase-database.js";-->
+<!--        import {doc, collection, getFirestore, addDoc, getDocs} from "https://www.gstatic.com/firebasejs/9.8.0/firebase-firestore.js";-->
+<!--        // TODO: Add SDKs for Firebase products that you want to use-->
+<!--        // https://firebase.google.com/docs/web/setup#available-libraries-->
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        // const querySnapshot = await getDocs(collection(db, "user_info"));
-        // querySnapshot.forEach((doc) => {
-        //     console.log(`${doc.id} => ${doc.data()}`);
-        // });
-    </script>
+<!--        // Your web app's Firebase configuration-->
+<!--        const firebaseConfig = {-->
+<!--            apiKey: "AIzaSyA7_0CWdjHDekYw7Itx19-hhmpdGmEi_ec",-->
+<!--            authDomain: "llp-score-manager.firebaseapp.com",-->
+<!--            projectId: "llp-score-manager",-->
+<!--            storageBucket: "llp-score-manager.appspot.com",-->
+<!--            messagingSenderId: "43667140212",-->
+<!--            appId: "1:43667140212:web:52730c5b40fb77d7446b21"-->
+<!--        };-->
+
+<!--        // Initialize Firebase-->
+<!--        const app = initializeApp(firebaseConfig);-->
+<!--        const db = getFirestore(app);-->
+<!--        // const querySnapshot = await getDocs(collection(db, "user_info"));-->
+<!--        // querySnapshot.forEach((doc) => {-->
+<!--        //     console.log(`${doc.id} => ${doc.data()}`);-->
+<!--        // });-->
+<!--    </script>-->
+    
 <!--    <script defer src="./js/init_firebase.js"></script>-->
     <script src="./js/load_data.js"></script>
 </body>
