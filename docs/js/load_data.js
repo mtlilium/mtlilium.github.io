@@ -1,5 +1,6 @@
 // 定数
-import {app, db, fb_auth, fb_fs} from "./init_firebase.js";
+import {app, db, fb_auth, fb_fs, fb, auth} from "./init_firebase.js";
+
 const root_path = {live:"https://m.tianyi9.com/#/getlive?live_id=", upload:"https://m.tianyi9.com/upload/", user:"https://m.tianyi9.com/#/userInfo?uid=", user_info:"https://m.tianyi9.com/API/user_info?uid="};
 const lamp_colors = {"NO PLAY": "#dddddde6", "CLEAR": "#ccffcce6", "FULL COMBO": "#ffffcce6"}; // クリアランプの色
 const dani_rank = ["初段", "二段", "三段", "四段", "五段", "六段", "七段", "八段", "九段", "十段", "中伝", "皆伝"];
@@ -154,36 +155,6 @@ function getLevelLampStatus(lv) {
     let num_total = num_clear + num_full_combo + num_no_play;
     return "All: " + num_total + "  " + " NP: " + num_no_play + "  " + " C: " + num_clear + "  "  + " FC: " + num_full_combo;
 }
-// 日付固定のレコメンド譜面を取得
-function getTodayRecommend(num){
-    let dt = new Date();
-    let y = dt.getFullYear();
-    let m = dt.getMonth() + 1;
-    m = ( ( m < 10 ) ? '0' : '' ) + m;
-    let d = dt.getDate();
-    d = ( ( d < 10 ) ? '0' : '' ) + d;
-    //. 今日の午前零時のタイムスタンプをシードとして取得
-    dt = new Date( y + '/' + m + '/' + d + ' 00:00:00' );
-    let seed = dt.getTime();
-    //. 今日の午前零時のタイムスタンプをシードに関数を初期化
-    let random = new OriginalRandom(seed);
-    let res = [];
-    while(res.length<num){
-        let item = insane_chart_info[random.nextInt(0, insane_chart_info.length-1)];
-        if(item in res === false){
-            res.push(insane_chart_info[random.nextInt(0, insane_chart_info.length-1)]);
-        }
-    }
-    res.sort((a, b) => {
-        a = a["live_name"].toString().toLowerCase();
-        b = b["live_name"].toString().toLowerCase();
-        if(a < b) return -1;
-        else if(a > b) return 1;
-        return 0;
-    });
-    return res;
-}
-
 
 // header.json 読み込み => Googleスプレッドシートへのアクセス
 $(document).ready(function () {
@@ -202,13 +173,38 @@ $(document).ready(function () {
     checkLocalStorageSize();
     console.log(db);
     miria().then(r => console.log("dekita"));
+    // const auth = fb_auth.getAuth();
+    // fb_auth.signInAnonymously(auth).then(() => {
+    //     //sign in
+    //     console.log("login dekita")
+    // })
+    // fb_auth.getAuth().onAuthStateChanged(async (user) => {
+    //     // 未ログイン時
+    //     if (!user) {
+    //         // 匿名ログインする
+    //         fb_auth.getAuth().signInAnonymously();
+    //     }
+    //     // ログイン時
+    //     else {
+    //         // ログイン済みのユーザー情報があるかをチェック
+    //         var userDoc = await fb_fs.collection('user_info').doc(user.uid).get();
+    //         if (!userDoc.exists) {
+    //             // Firestore にユーザー用のドキュメントが作られていなければ作る
+    //             await userDoc.ref.set({
+    //                 screen_name: user.uid,
+    //                 display_name: '名無しさん',
+    //                 created_at: fb.firestore.FieldValue.serverTimestamp(),
+    //             });
+    //         }
+    //     }
+    // });
 });
 
 async function miria(){
-    const querySnapshot = await fb_fs.getDocs(fb_fs.collection(db, "user_info"));
-    querySnapshot.forEach((doc) => {
-        console.log(`${doc.id} => ${doc.data()}`);
-    });
+    // const querySnapshot = await fb_fs.getDocs(fb_fs.collection(db, "user_info"));
+    // querySnapshot.forEach((doc) => {
+    //     console.log(`${doc.id} => ${doc.data()}`);
+    // });
 }
 
 // スクロールすると丈夫に固定されるナビゲーション
@@ -712,34 +708,7 @@ function editInfo(id){
     $('.popup').addClass('popup_show').fadeIn();
 }
 
-// ランセレ 本体 譜面の選定
-function getRandomSelect(){
-    // レベルで絞り込み
-    const level = $("#randomLevel").val();
-    const relational = $("#randomRelational").val();
-    let candidates;
-    if (relational === "eq"){
-        candidates = insane_chart_info.filter(e => parseInt(e["★"]) == level);
-    }else if(relational === "leq"){
-        candidates = insane_chart_info.filter(e => parseInt(e["★"]) <= level);
-    }else{
-        candidates = insane_chart_info.filter(e => parseInt(e["★"]) >= level);
-    }
-    console.log(candidates);
-    if(!candidates.length){alert('該当する作品がありません'); return undefined;}
-    const rnd = ~~(Math.random() * candidates.length);
-    console.log(candidates[rnd] + " " + candidates[rnd]["★"] + ":" + level);
-    return root_path["live"] + candidates[rnd]["live_id"];
-}
-// ランセレ 呼び出し
-function randomSelect() {
-    const url = getRandomSelect();
-    if (url) {
-        localStorage["selectRandomCnt"] = Number(localStorage["selectRandomCnt"]) + 1 || 1;
-        // document.location = url;
-        window.open(url, "_blank");
-    }
-}
+
 
 
 //Aboutページ遷移
@@ -792,6 +761,8 @@ function makeSetting(){
     obj.html(""); // 初期化
     $("#panel").css("visibility", "hidden");
     $("#panel").html("");
+    obj.load("./tmp/SettingPage.html", function (){
+    });
     // const colRef = collection(db, "user_info");
     // const newItem = doc(colRef);
     // const data = {
@@ -800,7 +771,7 @@ function makeSetting(){
     //     country: "USA",
     // }
     // await setDoc(newItem, data);
-    console.log(_fb_auth)
+    console.log(auth.currentUser);
 }
 
 //雑多
@@ -824,3 +795,132 @@ class OriginalRandom {
         return min + (r % (max + 1 - min));
     }
 }
+
+// 日付固定のレコメンド譜面を取得
+function getTodayRecommend(num){
+    let dt = new Date();
+    let y = dt.getFullYear();
+    let m = dt.getMonth() + 1;
+    m = ( ( m < 10 ) ? '0' : '' ) + m;
+    let d = dt.getDate();
+    d = ( ( d < 10 ) ? '0' : '' ) + d;
+    //. 今日の午前零時のタイムスタンプをシードとして取得
+    dt = new Date( y + '/' + m + '/' + d + ' 00:00:00' );
+    let seed = dt.getTime();
+    //. 今日の午前零時のタイムスタンプをシードに関数を初期化
+    let random = new OriginalRandom(seed);
+    let res = [];
+    while(res.length<num){
+        let item = insane_chart_info[random.nextInt(0, insane_chart_info.length-1)];
+        if(item in res === false){
+            res.push(insane_chart_info[random.nextInt(0, insane_chart_info.length-1)]);
+        }
+    }
+    res.sort((a, b) => {
+        a = a["live_name"].toString().toLowerCase();
+        b = b["live_name"].toString().toLowerCase();
+        if(a < b) return -1;
+        else if(a > b) return 1;
+        return 0;
+    });
+    return res;
+}
+
+// ランセレ 本体 譜面の選定
+function getRandomSelect(){
+    // レベルで絞り込み
+    const level = $("#randomLevel").val();
+    const relational = $("#randomRelational").val();
+    let candidates;
+    if (relational === "eq"){
+        candidates = insane_chart_info.filter(e => parseInt(e["★"]) == level);
+    }else if(relational === "leq"){
+        candidates = insane_chart_info.filter(e => parseInt(e["★"]) <= level);
+    }else{
+        candidates = insane_chart_info.filter(e => parseInt(e["★"]) >= level);
+    }
+    console.log(candidates);
+    if(!candidates.length){alert('該当する作品がありません'); return undefined;}
+    const rnd = ~~(Math.random() * candidates.length);
+    console.log(candidates[rnd] + " " + candidates[rnd]["★"] + ":" + level);
+    return root_path["live"] + candidates[rnd]["live_id"];
+}
+// ランセレ 呼び出し
+function randomSelect() {
+    const url = getRandomSelect();
+    if (url) {
+        localStorage["selectRandomCnt"] = Number(localStorage["selectRandomCnt"]) + 1 || 1;
+        // document.location = url;
+        window.open(url, "_blank");
+    }
+}
+
+// __________________________________________________________________________________________
+// ******************************************************************************************
+// firebase 関連
+// ******************************************************************************************
+// __________________________________________________________________________________________
+$(document).ready(function () {
+    fb_auth.onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // サインイン済みの時
+            const uid = user.uid;
+            console.log("login_status : login, uid : " + uid);
+        } else {
+            // サインインしてない時
+            console.log("login_status : logout");
+        }
+    });
+
+    // const auth = fb_auth.getAuth();
+    // fb_auth.signInAnonymously(auth).then(() => {
+    //     //sign in
+    //     console.log("login dekita")
+    // })
+    // fb_auth.getAuth().onAuthStateChanged(async (user) => {
+    //     // 未ログイン時
+    //     if (!user) {
+    //         // 匿名ログインする
+    //         fb_auth.getAuth().signInAnonymously();
+    //     }
+    //     // ログイン時
+    //     else {
+    //         // ログイン済みのユーザー情報があるかをチェック
+    //         var userDoc = await fb_fs.collection('user_info').doc(user.uid).get();
+    //         if (!userDoc.exists) {
+    //             // Firestore にユーザー用のドキュメントが作られていなければ作る
+    //             await userDoc.ref.set({
+    //                 screen_name: user.uid,
+    //                 display_name: '名無しさん',
+    //                 created_at: fb.firestore.FieldValue.serverTimestamp(),
+    //             });
+    //         }
+    //     }
+    // });
+});
+//ログインボタン
+$(document).on('click','#app #login',function(){
+    let email = $("#email_field").val();
+    let password = $("#password_field").val();
+
+    fb_auth.signInWithEmailAndPassword(auth, email, password)
+        .then((user) => {
+            console.log('ログイン成功=', user.user.uid)
+        })
+        .catch((error) => {
+            console.error(error)
+        })
+});
+//ログアウトボタン
+$(document).on('click','#app #logout',function(){
+    let email = $("#email_field").val();
+    let password = $("#password_field").val();
+
+    fb_auth.signOut(auth)
+        .then(()=>{
+        console.log("ログアウトしました");
+        })
+        .catch( (error)=>{
+            console.log(`ログアウト時にエラーが発生しました (${error})`);
+        });
+});
