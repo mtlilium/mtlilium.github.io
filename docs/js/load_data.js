@@ -20,7 +20,7 @@ const num_recommend = 10;
 
 // localStorage セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
-//2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_dani": "三段", "skill_point"}
+//2. key : "user_info", value : {"user_name": 11012, "dani": "三段", "skill_point"}
 //3. key : "dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
 //4. key : "skill_point", value : {"point": 334, "targets": {"live_id": 34, ... , "live_id": 25}}
 
@@ -502,6 +502,7 @@ function makeStats(){
     }
     obj.load("./tmp/StatsPage.html", function (){
         //self_name
+        $("#prof_name").children().eq(1).text(!(localStorage.getItem("user_name"))?"guest":localStorage.getItem("user_name"));
         //self_img
         //self_profile
         $("#prof_skill_pt").children().eq(1).text(getSkillPoint().point);
@@ -921,10 +922,10 @@ function checkLogin(){
 //ログイン状態でon offする要素
 function setLoginStatusToObj(){
     if(checkLogin()){
-        $("#logout_button").css("visibility", "visible");
+        $("#logout_button, #change_user_name").css("visibility", "visible");
         $("#login_button, #login_password, #login_email, #login-page .message a").prop("disabled", true);
     }else{
-        $("#logout_button").css("visibility", "hidden");
+        $("#logout_button, #change_user_name").css("visibility", "hidden");
         $("#login_button, #login_password, #login_email, #login-page .message a").prop("disabled", false);
     }
 }
@@ -934,6 +935,7 @@ $(document).ready(function () {
             // サインイン済みの時
             const uid = user.uid;
             console.log("login_status : login");
+
 
         } else {
             // サインインしてない時
@@ -971,6 +973,27 @@ $(document).ready(function () {
     //     }
     // });
 });
+async function initUserDoc(uid, email, user_name='名無しさん'){
+    //ログイン済みのユーザー情報があるかをチェック
+    let usersRef = fb_fs.collection(db, "users");
+    let userDoc = fb_fs.doc(usersRef, uid); //uid を指定して単一のドキュメントを参照
+    if (!userDoc.exists) {
+        // Firestore にユーザー用のドキュメントが作られていなければ作る
+        let current_user_name = localStorage.getItem("user_name");
+        let new_data = {
+            uid: uid,
+            user_name: (current_user_name === null) ? "名無しさん" : current_user_name,
+            email: email,
+            skill_point: getSkillPoint()["point"],
+            created_at: fb_fs.serverTimestamp(),
+        }
+        await fb_fs.setDoc(userDoc, new_data);
+        console.log("make doc");
+    }else{
+        console.log("exist doc");
+    }
+
+}
 //ログイン・サインアップ画面 切替
 $(document).on('click','#app #login-page .message a',function(e){
     e.preventDefault();
@@ -986,11 +1009,30 @@ $(document).on('click','#app #login_button',function(){
         .then((user) => {
             alert(`success : login (${user.user.uid})`);
             console.log(`success : login (${user.user.uid})`);
+            initUserDoc(user.user.uid, email).then(r => console.log("yeahhhh"));
         })
         .catch((error) => {
             $("#login_password").val("");
             alert(`failed : login (${error})`);
             console.log(`failed : login (${error})`);
+        })
+});
+//サインアップボタン
+$(document).on('click','#app #register_button',function(){
+    let name = $("#register_name").val()
+    let email = $("#register_email").val();
+    let password = $("#register_password").val();
+    fb_auth.createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            alert(`success : signup (${userCredential.user.uid})`);
+            console.log(`success : signup (${userCredential.user.uid})`);
+            localStorage.setItem("user_name", name);
+            initUserDoc(userCredential.user.uid, email).then(r => console.log("yeahhhh"));
+        })
+        .catch((error) => {
+            $("#login_password").val("");
+            alert(`failed : signup (${error})`);
+            console.log(`failed : signup (${error})`);
         })
 });
 //ログアウトボタン
@@ -1004,4 +1046,8 @@ $(document).on('click','#app #logout_button',function(){
             alert(`failed : logout (${error})`);
             console.log(`failed : logout (${error})`);
         });
+});
+//ユーザーネーム変更
+$(document).on('change','#app #change_user_name',function(){
+    localStorage.setItem("user_name", $(this).val());
 });
