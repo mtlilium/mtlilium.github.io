@@ -5,12 +5,15 @@
 }
 #app .form {
     position: relative;
-    background: #FFFFFF;
-    max-width: 900px;
+    max-width: 600px;
     margin: 0 auto;
     padding: 45px;
     text-align: center;
-    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    background: rgba(0, 127, 128, 0.68);
+    -webkit-box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
+    box-shadow: 0px 0px 12px rgba(0, 255, 255, 0.5);
+    border: 1px solid rgba(128, 255, 255, 0.25);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.95);
 }
 #app .form input {
     outline: 0;
@@ -25,18 +28,19 @@
 #app .form input[type=button] {
     text-transform: uppercase;
     outline: 0;
-    background: #4CAF50;
-    width: 100%;
+    background: rgba(255, 160, 52, 0.88);
+    opacity: 1.0;
+    color: rgba(255, 255, 255, 0.75);
+    width: 50%;
     border: 0;
     padding: 15px;
-    color: #FFFFFF;
     font-size: 14px;
     -webkit-transition: all 0.2s ease 0.1s;
     transition: all 0.2s ease 0.1s;
     cursor: pointer;
 }
 #app .form input[type=button]:hover, #app .form input[type=button]:active, #app .form input[type=button]:focus {
-    background: #43A047;
+    opacity: .8;
 }
 #app .form .message {
     margin: 15px 0 0;

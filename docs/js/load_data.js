@@ -16,24 +16,7 @@ const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.
 const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"]
 const num_recommend = 10;
 
-function checkLocalStorageSize(){
-    let _lsTotal = 0,
-        _xLen, _x;
-    for (_x in localStorage) {
-        if (!localStorage.hasOwnProperty(_x)) {
-            continue;
-        }
-        _xLen = ((localStorage[_x].length + _x.length) * 2);
-        _lsTotal += _xLen;
-    }
-    console.log("localStorage Total = " + (_lsTotal / 1024).toFixed(2) + " KB");
-}
-function isNumber(numVal){
-    // チェック条件パターン
-    const pattern = RegExp(/^([1-9]\d*|0)$/);
-    // 数値チェック
-    return pattern.test(numVal);
-}
+
 
 // セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
@@ -777,8 +760,11 @@ function makeSetting(){
 
 
 
-
-//雑多
+// __________________________________________________________________________________________
+// ******************************************************************************************
+// 雑多
+// ******************************************************************************************
+// __________________________________________________________________________________________
 class OriginalRandom {
     constructor(seed = 19681106) {
         this.x = 31415926535;
@@ -856,11 +842,30 @@ function randomSelect() {
         window.open(url, "_blank");
     }
 }
-//Settingページ遷移
+//ランセレボタン押したとき
 $(document).on('click','#randomSelectButton',function(){
     console.log("random select");
     randomSelect();
 });
+//localStorage サイズ計算
+function checkLocalStorageSize(){
+    let _lsTotal = 0,
+        _xLen, _x;
+    for (_x in localStorage) {
+        if (!localStorage.hasOwnProperty(_x)) {
+            continue;
+        }
+        _xLen = ((localStorage[_x].length + _x.length) * 2);
+        _lsTotal += _xLen;
+    }
+    console.log("localStorage Total = " + (_lsTotal / 1024).toFixed(2) + " KB");
+}
+function isNumber(numVal){
+    // チェック条件パターン
+    const pattern = RegExp(/^([1-9]\d*|0)$/);
+    // 数値チェック
+    return pattern.test(numVal);
+}
 
 // __________________________________________________________________________________________
 // ******************************************************************************************

@@ -1,10 +1,33 @@
 <!--#app の中身-->
 <div class="tab_area">
-    <div class="tab_button folder_active">LOGIN</div>
-    <div class="tab_button">SETTING</div>
+    <div class="tab_button folder_active">SETTING</div>
+    <div class="tab_button">LOGIN</div>
 </div>
 <div id="contents_area">
-    <div id="login_folder" class="folder_content folder_active">
+    <div id="setting_folder" class="folder_content folder_active">
+        <div>
+            <h2>リンク別窓</h2>
+        </div>
+        <div>
+            <h2>ジャケット画像表示</h2>
+        </div>
+        <div>
+            <h2>カスタムフォルダー 1</h2>
+        </div>
+        <div>
+            <h2>カスタムフォルダー 2</h2>
+        </div>
+        <div>
+            <h2>IR</h2>
+            <input id="douki_button" type="button" value="同期">
+        </div>
+        <div>
+            <h2>ログアウト</h2>
+            <input id="logout_button" type="button" value="logout">
+        </div>
+    </div>
+
+    <div id="login_folder" class="folder_content">
         <div id="login-page">
             <form class="form" id="register-form">
                 <input id="register_name" type="text" placeholder="user name"/>
@@ -20,9 +43,5 @@
                 <p class="message">Not registered?<br><a href="#">Create an account</a></p>
             </form>
         </div>
-    </div>
-
-    <div id="setting_folder" class="folder_content">
-        <input id="logout_button" type="button" value="logout">
     </div>
 </div>
