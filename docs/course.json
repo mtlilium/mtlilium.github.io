@@ -1,0 +1,17 @@
+{
+  "Spring": {
+    "music": ["wbghSEDFFCPA9gCc", "JOewZ6xDU7X45lIr", "DkU1BiraCI2jGN04", "j5B3n13Jg046USN1"],
+    "deadline": "2022/5/31",
+    "ir" : true
+  },
+  "CHALLENGE 2022/5":{
+    "music": ["FOMMFHBxiRJR5gII", "iHHKhAFwLrynoDUW", "UaO3dnvuSjDMhMeP", "JKHEnzLwr4JyF8a6"],
+    "deadline": "2022/5/31",
+    "ir" : true
+  },
+  "Overjoy":{
+    "music": ["r0wePmslMqH5DiB7", "lAd4UuE1z4QrVjvk", "NHUQXWGYXWPQJOFY", "roUYk2GITtyF2roe"],
+    "deadline": "2022/6/30",
+    "ir" : false
+  }
+}

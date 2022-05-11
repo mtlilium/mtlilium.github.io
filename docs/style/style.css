@@ -1,6 +1,10 @@
 /*====================================================================
 基本要素
 ====================================================================*/
+@font-face {
+    font-family: 'My7segFont';
+    src: url("../fonts/DSEG7Modern-Bold.ttf");
+}
 body {
     font-size: 16px;
     font-family: sans-serif;
@@ -510,4 +514,98 @@ td{
 .fas{
     cursor:pointer;
     color:orange;
+}
+
+
+/*====================================================================
+#段位 COURSE IR
+====================================================================*/
+#app #dani_folder .ac2_header{
+    background: rgba(43, 43, 43, 0.68);
+    -webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 200, 0.25);
+    text-shadow: 0 0 10px rgba(20, 20, 20, 0.95);
+}
+#app #dani_folder .ac_inner{
+    border: 1px solid rgba(255, 255, 200, 0.25);
+    border-top: transparent;
+}
+.symbol_header .dani_image{
+    width: 25%;
+    height: auto;
+    vertical-align: middle;
+}
+
+#table_int  tbody tr td{
+    border-collapse: collapse;
+    border: 1px solid #2b2b2b;
+    font-size: 1.8vmin;
+}
+
+
+#table_int tbody tr #td_lamp img{
+    width: 100%;
+    height: auto;
+    margin : 0 auto;
+    display: flex;
+    /*align-items: flex-start;*/
+    vertical-align: middle;
+    object-fit: cover;
+    cursor: pointer;
+}
+#table_int #th_dani_jacket{
+    width: 10%;
+}
+
+#table_int #th_dani_title{
+    width: 40%;
+}
+#table_int #th_dani_artist{
+    width: 15%;
+}
+
+#table_int #th_dani_author{
+    width: 15%;
+}
+#table_int #th_dani_symbol{
+    width: 10%;
+}
+#table_int #th_dani_round{
+    width: 10%;
+}
+
+#table_int tbody tr #td_round{
+    text-align: center;
+
+}
+.td_status, .td_challenge{
+    color: aliceblue;
+    background: rgba(33, 23, 43, 0.68);
+}
+
+.td_status{
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+#table_int .td_status span:first-child{
+    color: rgba(255, 160, 52, 1);
+    float: left;
+    padding-left: 30%;
+}
+#table_int .td_status span:last-child{
+    float: right;
+    padding-right: 30%;
+    font-family: My7segFont;
+    font-size: 1em;
+}
+
+#table_int .td_status span:last-child{
+    float: right;
+}
+#table_int .td_challenge{
+    text-align: center;
+    padding-top: 2em;
+    padding-bottom: 2em;
 }

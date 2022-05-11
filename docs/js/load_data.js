@@ -9,7 +9,7 @@ let chart_info; // ALL
 let insane_chart_info; // 発狂難易度表入り譜面
 let skill_point_table = []; // skillpoint 計算用テーブル
 let skill_point_target_num = 30;
-let dani_info;
+let dani_info, course_info;
 let max_score = 1000000;
 let min_score = 0;
 const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.J.K.L" : /^[I-Li-l]/, "M.N.O.P" :  /^[M-Pm-p]/, "Q.R.S.T" : /^[Q-Tq-t]/, "U.V.W.X.Y.Z" : /^[U-Zu-z]/, "OTHERS" : /^([^A-Za-z])/};
@@ -18,7 +18,7 @@ const num_recommend = 10;
 
 
 
-// セーブデータ
+// localStorage セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
 //2. key : "user_info", value : {"user_id": 11012, "avatar_path": "url", "max_dani": "三段", "skill_point"}
 //3. key : "dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
@@ -121,13 +121,10 @@ function updateSkillPoint(id, new_rec, tar_num=skill_point_target_num){
         else if(a > b) return -1;
         return 0;
     });
-    // console.log(skill_point_table)
-    // console.log(getSkillPoint())
     let new_obj = {"point": 0.0, "targets": {}};
     new_obj.targets = skill_point_table.filter(function (item){return item.lamp !== "NO PLAY"}).slice(0, tar_num);
     new_obj.point = parseFloat((Object.keys(new_obj.targets).reduce((sum, key) => sum + (new_obj.targets[key].skill_point || 0) , 0)).toFixed(1));
     localStorage.setItem("skill_point", JSON.stringify(new_obj));
-    // console.log(getSkillPoint())
 }
 
 //個々の★のランプ状況 テキスト
@@ -152,6 +149,9 @@ $(document).ready(function () {
     });
     $.getJSON($("meta[name=dani_data]").attr("content"), function (dani) {
         dani_info = dani;
+    });
+    $.getJSON($("meta[name=course_data]").attr("content"), function (course) {
+        course_info = course;
     });
     checkLocalStorageSize();
 
@@ -413,7 +413,6 @@ function makeCustomFolder(){
                 //symbol
                 $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
                 //lamp
-                // $("<td id='td_lamp'><i class='gg-pen' id='edit_" + music[j]["live_id"] + "' onclick='editInfo(this.id)' " + "></i></td>").appendTo(row);
                 $("<td id='td_lamp'><img src='./imgs/pen.png'></td>").appendTo(row);
                 //jacket
                 $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
@@ -436,6 +435,57 @@ function makeCustomFolder(){
             }
         }
     }
+}
+function makeDaniFolder(){
+    let symbol = header_info["symbol"];
+    let rounds =["1st", "2nd", "3rd", "FINAL"];
+    let season = header_info["season"][header_info["season"].length - 1]; // 今のシーズンを取得
+    let m_list = dani_info["season_" + season];
+    for(let i=0; i<dani_rank.length; i++){
+        console.log(dani_rank[i])
+        let m_ids = m_list[dani_rank[i]]
+        // アコーディオン部
+        $("#dani_folder").append("<div class='ac2_one'" + "id=" + dani_rank[i] + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'><img class='dani_image' alt='dani' src='./imgs/dani/panel_" + dani_rank[i] + ".png'></div>" +
+            "</div></div><div class='ac_inner'></div>");
+        $("#" + dani_rank[i]).find(".ac_inner").append("<table class='box_one' id='table_int'></table>");
+        // 表のヘッダ追加 ["(round)", "(symbol)", "(jacket)", Title, Artist, Author]
+        $("#" + dani_rank[i]).find(".ac_inner .box_one").append("<thead class='table-dark'><tr><th id='th_dani_round'>Round</th><th id='th_dani_symbol'>"+ symbol +"</th><th id='th_dani_jacket'></th><th id='th_dani_title'>Title</th><th id='th_dani_artist'>Artist</th><th id='th_dani_author'>Author</th></tr></thead><tbody>");
+        // 行追加
+        for(let j=0; j<m_ids.length; j++){
+            let music = insane_chart_info.filter(c => c["live_id"] === m_ids[j])[0];
+            let lv = music["★"];
+            // music[j]["live_id"] から row を特定できるようにする
+            let row = $("<tr id='tr_" + music["live_id"] + "' ></tr>");
+            let music_localData = getMusic_LocalData(music["live_id"]);
+            changeBgColor(row, lamp_colors[music_localData["lamp"]]);
+            //round
+            $("<td id='td_round'>" + rounds[j] + "</td>").appendTo(row);
+            //symbol
+            $("<td id='td_symbol'>" + symbol + lv + "</td>").appendTo(row);
+            //jacket
+            $("<td id='td_jacket'><img src='" + root_path["upload"] + music["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
+            //Title
+            $("<td id='td_title'><a href=" + root_path["live"] + music["live_id"] + ">" + music["live_name"] + "</a></td>").appendTo(row);
+            //Artist
+            $("<td id='td_artist'>" + music["artist"] + "</td>").appendTo(row);
+            //Author
+            $("<td id='td_author'>" + music["author"] + "</td>").appendTo(row);
+
+            //追加
+            $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append(row);
+        }
+        //Status
+        $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append("<tr><td style='border-bottom: none;' colspan=6 class= 'td_status' id='td_status_"+ dani_rank[i] +"'><span class='dani_status'>EXCLEAR</span><span class='dani_score'>3640200</span></td></tr>");
+        //Challenge
+        $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append("<tr><td style='border-top: none;' colspan=6 class= 'td_challenge' id='td_challenge_"+ dani_rank[i] +"'><input id='dani_button' type='button' value='CHALLENGE'></td></tr>");
+    }
+}
+
+function makeCourseFolder(){
+
+}
+function makeIRFolder(){
+
 }
 
 function makeStats(){
@@ -696,34 +746,28 @@ function editInfo(id){
 //Aboutページ遷移
 $(document).on('click','#nav_about',function(){
     makeAbout();
-    console.log("show: about");
 });
 //難易度表ページ遷移
 $(document).on('click','#nav_charts',function(){
     makeTable();
-    console.log("show: charts");
 });
 //段位認定ページ遷移
 $(document).on('click','#nav_dani',function(){
     makeDaniTable();
-    console.log("show: dani");
 });
 //Statsページ遷移
 $(document).on('click','#nav_stats',function(){
     makeStats();
-    console.log("show: stats");
 });
 //Settingページ遷移
 $(document).on('click','#nav_setting',function(){
     makeSetting();
-    console.log("show: setting");
 });
 
 function makeAbout(){
     let obj = $("#app");
     obj.html(""); // 初期化
-    $("#panel").css("visibility", "hidden");
-    $("#panel").html("");
+    hiddenPanel();
     obj.load("./tmp/AboutPage.html", function (){
     });
 }
@@ -731,9 +775,14 @@ function makeDaniTable(){
     // 現シーズンの段位認定 dani_info["season_" + header_info["season"].slice(-1)[0]]
     let obj = $("#app");
     obj.html(""); // 初期化
-    $("#panel").css("visibility", "hidden");
-    $("#panel").html("");
+    hiddenPanel();
     obj.load("./tmp/daniTable.html", function (){
+        //発狂段位 folder
+        makeDaniFolder();
+        //Course folder
+        makeCourseFolder();
+        //IR Folder
+        makeIRFolder();
     });
 
 }
@@ -741,21 +790,10 @@ function makeDaniTable(){
 function makeSetting(){
     let obj = $("#app");
     obj.html(""); // 初期化
-    $("#panel").css("visibility", "hidden");
-    $("#panel").html("");
+    hiddenPanel();
     obj.load("./tmp/SettingPage.html", function (){
         setLoginStatusToObj();
     });
-    // const colRef = collection(db, "user_info");
-    // const newItem = doc(colRef);
-    // const data = {
-    //     name: "Los Angeles",
-    //     state: "CA",
-    //     country: "USA",
-    // }
-    // await setDoc(newItem, data);
-
-
 }
 
 
@@ -847,6 +885,11 @@ $(document).on('click','#randomSelectButton',function(){
     console.log("random select");
     randomSelect();
 });
+
+function hiddenPanel(){
+    $("#panel").css("visibility", "hidden");
+    $("#panel").html("");
+}
 //localStorage サイズ計算
 function checkLocalStorageSize(){
     let _lsTotal = 0,
