@@ -1019,21 +1019,21 @@ $(document).on('click','#app #login_button',function(){
 });
 //サインアップボタン
 $(document).on('click','#app #register_button',function(){
-    let name = $("#register_name").val()
-    let email = $("#register_email").val();
-    let password = $("#register_password").val();
-    fb_auth.createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            alert(`success : signup (${userCredential.user.uid})`);
-            console.log(`success : signup (${userCredential.user.uid})`);
-            localStorage.setItem("user_name", name);
-            initUserDoc(userCredential.user.uid, email).then(r => console.log("yeahhhh"));
-        })
-        .catch((error) => {
-            $("#login_password").val("");
-            alert(`failed : signup (${error})`);
-            console.log(`failed : signup (${error})`);
-        })
+    // let name = $("#register_name").val()
+    // let email = $("#register_email").val();
+    // let password = $("#register_password").val();
+    // fb_auth.createUserWithEmailAndPassword(auth, email, password)
+    //     .then((userCredential) => {
+    //         alert(`success : signup (${userCredential.user.uid})`);
+    //         console.log(`success : signup (${userCredential.user.uid})`);
+    //         localStorage.setItem("user_name", name);
+    //         initUserDoc(userCredential.user.uid, email).then(r => console.log("yeahhhh"));
+    //     })
+    //     .catch((error) => {
+    //         $("#login_password").val("");
+    //         alert(`failed : signup (${error})`);
+    //         console.log(`failed : signup (${error})`);
+    //     })
 });
 //ログアウトボタン
 $(document).on('click','#app #logout_button',function(){
