@@ -1,14 +1,28 @@
 <!--#app の中身-->
 <div class="tab_area">
-    <div class="tab_button folder_active">Sign In/Up</div>
-    <div class="tab_button">Setting</div>
+    <div class="tab_button folder_active">LOGIN</div>
+    <div class="tab_button">SETTING</div>
 </div>
 <div id="contents_area">
-    <div id="sign_folder" class="folder_content folder_active">
-        <input type="text" value="" id="email_field">
-        <input type="text" value="" id="password_field">
-        <input id="login" type="button" value="sign in">
-        <input id="logout" type="button" value="sign out">
+    <div id="login_folder" class="folder_content folder_active">
+        <div id="login-page">
+            <form class="form" id="register-form">
+                <input id="register_name" type="text" placeholder="user name"/>
+                <input id="register_email" type="text" placeholder="email address"/>
+                <input id="register_password" type="password" placeholder="password"/>
+                <input id="register_button" type="button" value="create">
+                <p class="message">Already registered?<br><a href="#">Sign In</a></p>
+            </form>
+            <form class="form form_active" id="login-form">
+                <input id="login_email" type="text" placeholder="email address"/>
+                <input id="login_password" type="password" placeholder="password"/>
+                <input id="login_button" type="button" value="login">
+                <p class="message">Not registered?<br><a href="#">Create an account</a></p>
+            </form>
+        </div>
     </div>
-    <div id="setting_folder" class="folder_content"></div>
+
+    <div id="setting_folder" class="folder_content">
+        <input id="logout_button" type="button" value="logout">
+    </div>
 </div>

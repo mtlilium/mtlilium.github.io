@@ -171,8 +171,7 @@ $(document).ready(function () {
         dani_info = dani;
     });
     checkLocalStorageSize();
-    console.log(db);
-    miria().then(r => console.log("dekita"));
+
     // const auth = fb_auth.getAuth();
     // fb_auth.signInAnonymously(auth).then(() => {
     //     //sign in
@@ -280,7 +279,7 @@ function makeDefaultFolder(){
                 //jacket
                 $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
                 //Title
-                $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
+                $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + " target='_blank'>" + music[j]["live_name"] + "</a></td>").appendTo(row);
                 //Artist
                 $("<td id='td_artist'>" + music[j]["artist"] + "</td>").appendTo(row);
                 //Author
@@ -337,7 +336,7 @@ function makeFavoriteFolder(){
         //jacket
         $("<td id='td_jacket'><img src='" + root_path["upload"] + music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
         //Title
-        $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + ">" + music[j]["live_name"] + "</a></td>").appendTo(row);
+        $("<td id='td_title'><a href=" + root_path["live"] + music[j]["live_id"] + " target='_blank'>" + music[j]["live_name"] + "</a></td>").appendTo(row);
         //Artist
         $("<td id='td_artist'>" + music[j]["artist"] + "</td>").appendTo(row);
         //Author
@@ -383,7 +382,7 @@ function makeCustomFolder(){
             //jacket
             $("<td id='td_jacket'><img src='" + root_path["upload"] + rec_music[j]["cover_path"] + "' oncontextmenu='return false;'></td>").appendTo(row);
             //Title
-            $("<td id='td_title'><a href=" + root_path["live"] + rec_music[j]["live_id"] + ">" + rec_music[j]["live_name"] + "</a></td>").appendTo(row);
+            $("<td id='td_title'><a href=" + root_path["live"] + rec_music[j]["live_id"] + " target='_blank'>" + rec_music[j]["live_name"] + "</a></td>").appendTo(row);
             //Artist
             $("<td id='td_artist'>" + rec_music[j]["artist"] + "</td>").appendTo(row);
             //Author
@@ -762,6 +761,7 @@ function makeSetting(){
     $("#panel").css("visibility", "hidden");
     $("#panel").html("");
     obj.load("./tmp/SettingPage.html", function (){
+        setLoginStatusToObj();
     });
     // const colRef = collection(db, "user_info");
     // const newItem = doc(colRef);
@@ -771,8 +771,12 @@ function makeSetting(){
     //     country: "USA",
     // }
     // await setDoc(newItem, data);
-    console.log(auth.currentUser);
+
+
 }
+
+
+
 
 //雑多
 class OriginalRandom {
@@ -839,10 +843,8 @@ function getRandomSelect(){
     }else{
         candidates = insane_chart_info.filter(e => parseInt(e["★"]) >= level);
     }
-    console.log(candidates);
     if(!candidates.length){alert('該当する作品がありません'); return undefined;}
     const rnd = ~~(Math.random() * candidates.length);
-    console.log(candidates[rnd] + " " + candidates[rnd]["★"] + ":" + level);
     return root_path["live"] + candidates[rnd]["live_id"];
 }
 // ランセレ 呼び出し
@@ -854,22 +856,45 @@ function randomSelect() {
         window.open(url, "_blank");
     }
 }
+//Settingページ遷移
+$(document).on('click','#randomSelectButton',function(){
+    console.log("random select");
+    randomSelect();
+});
 
 // __________________________________________________________________________________________
 // ******************************************************************************************
 // firebase 関連
 // ******************************************************************************************
 // __________________________________________________________________________________________
+function checkLogin(){
+    return auth.currentUser !== null;
+}
+//ログイン状態でon offする要素
+function setLoginStatusToObj(){
+    if(checkLogin()){
+        $("#logout_button").css("visibility", "visible");
+        $("#login_button, #login_password, #login_email, #login-page .message a").prop("disabled", true);
+    }else{
+        $("#logout_button").css("visibility", "hidden");
+        $("#login_button, #login_password, #login_email, #login-page .message a").prop("disabled", false);
+    }
+}
 $(document).ready(function () {
     fb_auth.onAuthStateChanged(auth, (user) => {
         if (user) {
             // サインイン済みの時
             const uid = user.uid;
-            console.log("login_status : login, uid : " + uid);
+            console.log("login_status : login");
+
         } else {
             // サインインしてない時
             console.log("login_status : logout");
+
         }
+
+        setLoginStatusToObj();
+
     });
 
     // const auth = fb_auth.getAuth();
@@ -898,29 +923,37 @@ $(document).ready(function () {
     //     }
     // });
 });
+//ログイン・サインアップ画面 切替
+$(document).on('click','#app #login-page .message a',function(e){
+    e.preventDefault();
+    let index = $(this).parent().parent().index();
+    $(this).parent().parent().removeClass("form_active");
+    $('#app #login-page').children().eq((index+1)%2).addClass("form_active");
+});
 //ログインボタン
-$(document).on('click','#app #login',function(){
-    let email = $("#email_field").val();
-    let password = $("#password_field").val();
-
+$(document).on('click','#app #login_button',function(){
+    let email = $("#login_email").val();
+    let password = $("#login_password").val();
     fb_auth.signInWithEmailAndPassword(auth, email, password)
         .then((user) => {
-            console.log('ログイン成功=', user.user.uid)
+            alert(`success : login (${user.user.uid})`);
+            console.log(`success : login (${user.user.uid})`);
         })
         .catch((error) => {
-            console.error(error)
+            $("#login_password").val("");
+            alert(`failed : login (${error})`);
+            console.log(`failed : login (${error})`);
         })
 });
 //ログアウトボタン
-$(document).on('click','#app #logout',function(){
-    let email = $("#email_field").val();
-    let password = $("#password_field").val();
-
+$(document).on('click','#app #logout_button',function(){
     fb_auth.signOut(auth)
         .then(()=>{
-        console.log("ログアウトしました");
+            alert("success : logout");
+            console.log("success : logout");
         })
         .catch( (error)=>{
-            console.log(`ログアウト時にエラーが発生しました (${error})`);
+            alert(`failed : logout (${error})`);
+            console.log(`failed : logout (${error})`);
         });
 });
