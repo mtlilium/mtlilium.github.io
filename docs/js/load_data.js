@@ -4,6 +4,7 @@ import {app, db, fb_auth, fb_fs, fb, auth} from "./init_firebase.js";
 const root_path = {live:"https://m.tianyi9.com/#/getlive?live_id=", upload:"https://m.tianyi9.com/upload/", user:"https://m.tianyi9.com/#/userInfo?uid=", user_info:"https://m.tianyi9.com/API/user_info?uid="};
 const lamp_colors = {"NO PLAY": "#dddddde6", "CLEAR": "#ccffcce6", "FULL COMBO": "#ffffcce6"}; // クリアランプの色
 const dani_rank = ["初段", "二段", "三段", "四段", "五段", "六段", "七段", "八段", "九段", "十段", "中伝", "皆伝"];
+const dani_rank_en = {"初段":"shodan", "二段":"nidan", "三段":"sandan", "四段":"yondan", "五段":"godan", "六段":"rokudan", "七段":"nanadan", "八段":"hachidan", "九段":"kyudan", "十段":"judan", "中伝":"chuden", "皆伝":"kaiden"};
 let header_info; // header.json の情報
 let chart_info; // ALL
 let insane_chart_info; // 発狂難易度表入り譜面
@@ -13,17 +14,65 @@ let dani_info, course_info;
 let max_score = 1000000;
 let min_score = 0;
 const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.J.K.L" : /^[I-Li-l]/, "M.N.O.P" :  /^[M-Pm-p]/, "Q.R.S.T" : /^[Q-Tq-t]/, "U.V.W.X.Y.Z" : /^[U-Zu-z]/, "OTHERS" : /^([^A-Za-z])/};
-const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"]
+const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"];
 const num_recommend = 10;
+//サーバー側
+let user_ref;
 
 
 
 // localStorage セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
-//2. key : "user_info", value : {"user_name": 11012, "dani": "三段", "skill_point"}
+//2. key : "user_info", value : {"user_name": "user_name", "uid": "rtyureutreuteru"} 非ログイン時 {"user_name": "guest", "uid": null}
 //3. key : "dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
 //4. key : "skill_point", value : {"point": 334, "targets": {"live_id": 34, ... , "live_id": 25}}
 
+async function setUserInfo(is_login){
+    const key = "user_info";
+    if(localStorage.getItem(key) === null) {
+        let new_obj = {
+            "user_name": "guest",
+            "uid": null,
+        };
+        localStorage.setItem(key, JSON.stringify(new_obj));
+    }
+    if(is_login){
+        const uid = auth.currentUser.uid;
+        let user_info_ref = fb_fs.doc(fb_fs.collection(db, "users"), uid);
+        const userSnap = await fb_fs.getDoc(user_info_ref);
+        if(userSnap.exists()){
+            console.log("success : get user_info");
+            localStorage.setItem(key, JSON.stringify({"user_name":userSnap.data()["user_name"], "uid":uid}));
+        }
+    }else{
+        localStorage.setItem(key, JSON.stringify({"user_name":"guest", "uid":null}));
+    }
+}
+function getUserInfo(){
+    const key = "user_info";
+    if(localStorage.getItem(key) === null) {
+        setUserInfo(auth.currentUser);
+    }
+    return JSON.parse(localStorage.getItem(key));
+}
+
+// ログイン時にのみ
+async function updateUserName(new_name){
+    const key = "user_info";
+    const uid = auth.currentUser.uid;
+
+    let user_info_ref = fb_fs.doc(fb_fs.collection(db, "users"), uid);
+    await fb_fs.updateDoc(user_info_ref, {"uid":uid, "user_name": new_name})
+        .then(()=>{
+            alert("success : update user_info");
+            console.log("success : update user_info");
+            localStorage.setItem(key, JSON.stringify({"user_name": new_name, "uid":uid}));
+        })
+        .catch( (error)=>{
+            alert(`failed : update user_info (${error})`);
+            console.log(`failed : update user_info (${error})`);
+        });
+}
 
 function getMusic_LocalData(key){
     if(localStorage.getItem(key) === null) {
@@ -135,9 +184,35 @@ function getLevelLampStatus(lv) {
     let num_total = num_clear + num_full_combo + num_no_play;
     return "All: " + num_total + "  " + " NP: " + num_no_play + "  " + " C: " + num_clear + "  "  + " FC: " + num_full_combo;
 }
-
+// __________________________________________________________________________________________
+// ******************************************************************************************
+// 最初に実行する
+// ******************************************************************************************
+// __________________________________________________________________________________________
+// firebase ログイン確認 => ログインしていたら
 // header.json 読み込み => Googleスプレッドシートへのアクセス
+// user_ref = fb_fs.doc(fb_fs.collection(db, "users"), auth.currentUser.user.uid);
+// const user_info_unsubscribe = fb_fs.onSnapshot(user_ref, (snapshot) => {
+//     console.log(snapshot.id + " : " + snapshot.data()["user_name"] + " : subscribe!")
+// })
+
 $(document).ready(function () {
+    //firebase ログイン確認
+    fb_auth.onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // サインイン済みの時
+            const uid = user.uid;
+            console.log("login_status : login");
+
+
+        } else {
+            // サインインしてない時
+            console.log("login_status : logout");
+        }
+        setUserInfo(user);
+        setLoginStatusToObj();
+    });
+
     $.getJSON($("meta[name=chart_data]").attr("content"), function (header) {
         $.getJSON(header.data_url, function (chart) {
             header_info = header;
@@ -155,39 +230,11 @@ $(document).ready(function () {
     });
     checkLocalStorageSize();
 
-    // const auth = fb_auth.getAuth();
-    // fb_auth.signInAnonymously(auth).then(() => {
-    //     //sign in
-    //     console.log("login dekita")
-    // })
-    // fb_auth.getAuth().onAuthStateChanged(async (user) => {
-    //     // 未ログイン時
-    //     if (!user) {
-    //         // 匿名ログインする
-    //         fb_auth.getAuth().signInAnonymously();
-    //     }
-    //     // ログイン時
-    //     else {
-    //         // ログイン済みのユーザー情報があるかをチェック
-    //         var userDoc = await fb_fs.collection('user_info').doc(user.uid).get();
-    //         if (!userDoc.exists) {
-    //             // Firestore にユーザー用のドキュメントが作られていなければ作る
-    //             await userDoc.ref.set({
-    //                 screen_name: user.uid,
-    //                 display_name: '名無しさん',
-    //                 created_at: fb.firestore.FieldValue.serverTimestamp(),
-    //             });
-    //         }
-    //     }
-    // });
 });
 
-async function miria(){
-    // const querySnapshot = await fb_fs.getDocs(fb_fs.collection(db, "user_info"));
-    // querySnapshot.forEach((doc) => {
-    //     console.log(`${doc.id} => ${doc.data()}`);
-    // });
-}
+function hh(){
+   console.log(auth.currentUser.uid);
+};
 
 // スクロールすると丈夫に固定されるナビゲーション
 $(document).ready(function () {
@@ -442,7 +489,6 @@ function makeDaniFolder(){
     let season = header_info["season"][header_info["season"].length - 1]; // 今のシーズンを取得
     let m_list = dani_info["season_" + season];
     for(let i=0; i<dani_rank.length; i++){
-        console.log(dani_rank[i])
         let m_ids = m_list[dani_rank[i]]
         // アコーディオン部
         $("#dani_folder").append("<div class='ac2_one'" + "id=" + dani_rank[i] + "><div class='ac2_header'><div class='items_header'><div class='symbol_header'><img class='dani_image' alt='dani' src='./imgs/dani/panel_" + dani_rank[i] + ".png'></div>" +
@@ -502,7 +548,7 @@ function makeStats(){
     }
     obj.load("./tmp/StatsPage.html", function (){
         //self_name
-        $("#prof_name").children().eq(1).text(!(localStorage.getItem("user_name"))?"guest":localStorage.getItem("user_name"));
+        $("#prof_name").children().eq(1).text(getUserInfo()["user_name"]);
         //self_img
         //self_profile
         $("#prof_skill_pt").children().eq(1).text(getSkillPoint().point);
@@ -930,69 +976,43 @@ function setLoginStatusToObj(){
     }
 }
 $(document).ready(function () {
-    fb_auth.onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // サインイン済みの時
-            const uid = user.uid;
-            console.log("login_status : login");
 
 
-        } else {
-            // サインインしてない時
-            console.log("login_status : logout");
+    // getTestData();
 
-        }
 
-        setLoginStatusToObj();
-
-    });
-
-    // const auth = fb_auth.getAuth();
-    // fb_auth.signInAnonymously(auth).then(() => {
-    //     //sign in
-    //     console.log("login dekita")
-    // })
-    // fb_auth.getAuth().onAuthStateChanged(async (user) => {
-    //     // 未ログイン時
-    //     if (!user) {
-    //         // 匿名ログインする
-    //         fb_auth.getAuth().signInAnonymously();
-    //     }
-    //     // ログイン時
-    //     else {
-    //         // ログイン済みのユーザー情報があるかをチェック
-    //         var userDoc = await fb_fs.collection('user_info').doc(user.uid).get();
-    //         if (!userDoc.exists) {
-    //             // Firestore にユーザー用のドキュメントが作られていなければ作る
-    //             await userDoc.ref.set({
-    //                 screen_name: user.uid,
-    //                 display_name: '名無しさん',
-    //                 created_at: fb.firestore.FieldValue.serverTimestamp(),
-    //             });
-    //         }
-    //     }
-    // });
 });
-async function initUserDoc(uid, email, user_name='名無しさん'){
+
+async function getTestData(){
+    const querySnapshot = await fb_fs.getDocs(fb_fs.query(fb_fs.collectionGroup(db, "IR_shodan_season_0"), fb_fs.orderBy("total_score", "desc")));
+    querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()["total_score"]}`);
+    });
+    let hoge = fb_fs.doc(fb_fs.collection(db, "dani_season_0"), "shodan_season_0", "IR_shodan_season_0" ,auth.currentUser.uid);
+    const docSnap = await fb_fs.getDoc(hoge);
+    console.log(docSnap.id, docSnap.data());
+    await fb_fs.updateDoc(hoge, {"total_score":777777}).then(() =>{ console.log(docSnap.id, docSnap.data());});
+}
+async function initUserDoc(uid, email, user_name='no name'){
     //ログイン済みのユーザー情報があるかをチェック
+    console.log("uid:",uid)
+    console.log("email:", email)
     let usersRef = fb_fs.collection(db, "users");
     let userDoc = fb_fs.doc(usersRef, uid); //uid を指定して単一のドキュメントを参照
-    if (!userDoc.exists) {
-        // Firestore にユーザー用のドキュメントが作られていなければ作る
-        let current_user_name = localStorage.getItem("user_name");
+    const userSnap = await fb_fs.getDoc(userDoc);
+    if(!userSnap.exists()){
         let new_data = {
             uid: uid,
-            user_name: (current_user_name === null) ? "名無しさん" : current_user_name,
+            user_name: (user_name.length < 1) ? "no name" : user_name,
             email: email,
-            skill_point: getSkillPoint()["point"],
             created_at: fb_fs.serverTimestamp(),
         }
         await fb_fs.setDoc(userDoc, new_data);
+        localStorage.setItem("user_info", JSON.stringify({"user_name":new_data["user_name"], "uid":uid}));
         console.log("make doc");
     }else{
         console.log("exist doc");
     }
-
 }
 //ログイン・サインアップ画面 切替
 $(document).on('click','#app #login-page .message a',function(e){
@@ -1009,7 +1029,7 @@ $(document).on('click','#app #login_button',function(){
         .then((user) => {
             alert(`success : login (${user.user.uid})`);
             console.log(`success : login (${user.user.uid})`);
-            initUserDoc(user.user.uid, email).then(r => console.log("yeahhhh"));
+            initUserDoc(user.user.uid, email, getUserInfo()["user_name"]);
         })
         .catch((error) => {
             $("#login_password").val("");
@@ -1019,21 +1039,24 @@ $(document).on('click','#app #login_button',function(){
 });
 //サインアップボタン
 $(document).on('click','#app #register_button',function(){
-    // let name = $("#register_name").val()
-    // let email = $("#register_email").val();
-    // let password = $("#register_password").val();
-    // fb_auth.createUserWithEmailAndPassword(auth, email, password)
-    //     .then((userCredential) => {
-    //         alert(`success : signup (${userCredential.user.uid})`);
-    //         console.log(`success : signup (${userCredential.user.uid})`);
-    //         localStorage.setItem("user_name", name);
-    //         initUserDoc(userCredential.user.uid, email).then(r => console.log("yeahhhh"));
-    //     })
-    //     .catch((error) => {
-    //         $("#login_password").val("");
-    //         alert(`failed : signup (${error})`);
-    //         console.log(`failed : signup (${error})`);
-    //     })
+    let name = $("#register_name").val()
+    let email = $("#register_email").val();
+    let password = $("#register_password").val();
+    if(name.length < 3){
+        alert("Please input name at least 3 characters.");
+        return;
+    }
+    fb_auth.createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            alert(`success : signup (${userCredential.user.uid})`);
+            console.log(`success : signup (${userCredential.user.uid})`);
+            initUserDoc(userCredential.user.uid, email, name);
+        })
+        .catch((error) => {
+            $("#login_password").val("");
+            alert(`failed : signup (${error})`);
+            console.log(`failed : signup (${error})`);
+        })
 });
 //ログアウトボタン
 $(document).on('click','#app #logout_button',function(){
@@ -1049,5 +1072,5 @@ $(document).on('click','#app #logout_button',function(){
 });
 //ユーザーネーム変更
 $(document).on('change','#app #change_user_name',function(){
-    localStorage.setItem("user_name", $(this).val());
+    updateUserName($(this).val());
 });

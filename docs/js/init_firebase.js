@@ -24,16 +24,3 @@ export const fb_fs = _fb_fs;
 export const db = fb_fs.getFirestore(app);
 export const fb_auth = _fb_auth;
 export const auth = fb_auth.getAuth();
-
-// const querySnapshot = await getDocs(collection(db, "user_info"));
-// querySnapshot.forEach((doc) => {
-//     console.log(`${doc.id} => ${doc.data()}`);
-// });
-// const colRef = collection(db, "user_info");
-// const newItem = doc(colRef);
-// const data = {
-// name: "Los Angeles",
-// state: "CA",
-// country: "USA",
-// }
-// await setDoc(newItem, data);

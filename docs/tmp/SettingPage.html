@@ -34,9 +34,9 @@
     <div id="login_folder" class="folder_content">
         <div id="login-page">
             <form class="form" id="register-form">
-                <input id="register_name" type="text" placeholder="user name"/>
-                <input id="register_email" type="text" placeholder="email address"/>
-                <input id="register_password" type="password" placeholder="password"/>
+                <input id="register_name" type="text" placeholder="user name" minlength="3" required=""/>
+                <input id="register_email" type="text" placeholder="email address" required=""/>
+                <input id="register_password" type="password" placeholder="password" minlength="6" required=""/>
                 <input id="register_button" type="button" value="create">
                 <p class="message">Already registered?<br><a href="#">Sign In</a></p>
             </form>
