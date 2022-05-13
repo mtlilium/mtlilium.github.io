@@ -8,6 +8,7 @@
     <meta name="dani_data" content="./dani_nintei.json">
     <meta name="course_data" content="./course.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"/>
+    <script src="./js/jquery.cookie.js"></script>
     <link rel="stylesheet" href="./style/style.css">
     <link rel="stylesheet" href="./style/statsPageStyle.css">
     <link rel="stylesheet" href="./style/loginformStyle.css">
@@ -43,6 +44,10 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
     <script src="./js/load_data.js" type="module"></script>
+    <script>
+        //Cookieの保存＋セキュリティー指定
+        $.cookie("name", "value", {expires: 365, path: "/", sameSite: "none", secure: true});
+    </script>
 </body>
 
 </html>
