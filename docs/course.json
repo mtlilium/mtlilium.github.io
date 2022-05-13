@@ -2,22 +2,25 @@
   "Spring_2022": {
     "course_name": "Spring",
     "music": ["wbghSEDFFCPA9gCc", "JOewZ6xDU7X45lIr", "DkU1BiraCI2jGN04", "j5B3n13Jg046USN1"],
-    "startTime": "2022/4/1",
-    "endTime": "2022/5/31",
+    "color": "#e2c3dc",
+    "startTime": "April 1 2022 00:00:00 GMT+0900",
+    "endTime": "May 31 2022 23:59:59 GMT+0900",
     "IR" : true
   },
   "CHALLENGE_2022_5":{
     "course_name": "CHALLENGE",
     "music": ["FOMMFHBxiRJR5gII", "iHHKhAFwLrynoDUW", "UaO3dnvuSjDMhMeP", "JKHEnzLwr4JyF8a6"],
-    "startTime": "2022/5/1",
-    "endTime": "2022/5/31",
+    "color": "#d31343",
+    "startTime": "May 1 2022 00:00:00 GMT+0900",
+    "endTime": "May 31 2022 23:59:59 GMT+0900",
     "IR" : true
   },
   "Overjoy":{
     "course_name": "Overjoy",
     "music": ["r0wePmslMqH5DiB7", "lAd4UuE1z4QrVjvk", "NHUQXWGYXWPQJOFY", "roUYk2GITtyF2roe"],
-    "startTime": "2022/4/1",
-    "endTime": "2022/6/30",
+    "color": "#0a57db",
+    "startTime": "May 1 2022 00:00:00 GMT+0900",
+    "endTime": "June 30 2022 23:59:59 GMT+0900",
     "IR" : false
   }
 }

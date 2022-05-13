@@ -18,7 +18,8 @@ const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.
 const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"];
 const num_recommend = 10;
 //サーバー側
-let user_ref;
+//ローカル時間はgetJST(), サーバー時間は data.toDate()で比較する
+
 
 
 
@@ -28,6 +29,7 @@ let user_ref;
 //3. key : "dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
 //4. key : "skill_point", value : {"point": 334, "targets": {"live_id": 34, ... , "live_id": 25}}
 //5. key : "dani_season_0", value : {"初段":{"each_score:[1,2,3,4]", "total_score":10, "lamp": "NO PLAY" or "CLEAR" or "EX CLEAR" or "FAILED"}, "二段":{} ...}
+//6. key : "course", value : {"course_key":{"each_score:[1,2,3,4]", "total_score":10, "lamp": "NO PLAY" or "CLEAR" or "EX CLEAR" or "FAILED"}, ...}
 async function setUserInfo(is_login){
     const key = "user_info";
     if(localStorage.getItem(key) === null) {
@@ -498,7 +500,6 @@ function makeCustomFolder(){
     }
 }
 function makeDaniFolder(){
-    console.log(getDaniScore());
     let symbol = header_info["symbol"];
     let rounds =["1st", "2nd", "3rd", "FINAL"];
     let season = header_info["season"][header_info["season"].length - 1]; // 今のシーズンを取得
@@ -547,8 +548,40 @@ function makeDaniFolder(){
     }
 }
 
-function makeCourseFolder(){
+async function makeCourseFolder() {
+    let symbol = header_info["symbol"];
+    let rounds = ["1st", "2nd", "3rd", "FINAL"];
+    let data = new Date();
+    console.log("日本現在時間:" + data)
+    console.log("getJST:" + getJST())
+    let utc = data.toGMTString();
+    console.log("標準現在時間:" + utc)
+    let oyo = new Date("May 14 2022 03:00:00 GMT+0900");
+    console.log(oyo)
+    console.log(oyo < getJST())
+    console.log(oyo < utc)
+    // console.log("サーバー変換時間:" + changeJSTDate(serverTime))
+    for (let i = 0; i < course_info.length; i++) {
+        console.log(course_info[i]);
+    }
+    let usersRef = fb_fs.collection(db, "users");
+    let userDoc = fb_fs.doc(usersRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
+    let m;
+    const userSnap = await fb_fs.getDoc(userDoc).then((snap) => {
+        console.log(snap.data()["created_at"].toDate())
+        console.log(snap.data()["created_at"].toDate())
+        m = snap.data()["created_at"].toDate();
+        console.log(snap.data()["created_at"].toDate().getTimezoneOffset());
+    });
 
+    let a = new Date("May 13 2022 00:15:47 GMT+0900");
+    let b = new Date("May 13 2022 00:16:00 GMT+0900");
+    let c = new Date("5 15 2022 02:51:00 GMT+0900");
+    console.log(a.getFullYear(), a.getMonth() + 1, a.getDate(), a.getHours(), a.getMinutes(), a.getSeconds())
+    console.log(m.getFullYear(), m.getMonth() + 1, m.getDate(), m.getHours(), m.getMinutes(), m.getSeconds())
+    console.log(getJST().getFullYear(), getJST().getMonth() + 1, getJST().getDate(), getJST().getHours(), getJST().getMinutes(), getJST().getSeconds())
+    console.log(b.getFullYear(), b.getMonth() + 1, b.getDate(), b.getHours(), b.getMinutes(), b.getSeconds())
+    console.log(isWithinRangeDays(m,a, b));
 }
 function makeIRFolder(){
 
@@ -908,6 +941,68 @@ function daniImgsPreload(){
     imgPreload(arr);
 }
 
+function getJST(){
+    // 取得できる値は必ず日本時間になる
+    const jstNow = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+    return jstNow;
+}
+let isWithinRangeDays = function(targetDate, rangeStartDate, rangeEndDate) {
+    let targetDateTime, rangeStartTime, rangeEndTime;
+    let startFlag = false;
+    let endFlag = false;
+
+    let targetDateArr = [targetDate.getUTCFullYear(), targetDate.getUTCMonth()+1, targetDate.getUTCDate(), targetDate.getUTCHours(), targetDate.getUTCMinutes(), targetDate.getUTCSeconds()];
+    let rangeStartDateArr = [rangeStartDate.getUTCFullYear(), rangeStartDate.getUTCMonth()+1, rangeStartDate.getUTCDate(), rangeStartDate.getUTCHours(), rangeStartDate.getUTCMinutes(), rangeStartDate.getUTCSeconds()];
+    let rangeEndDateArr = [rangeEndDate.getUTCFullYear(), rangeEndDate.getUTCMonth()+1, rangeEndDate.getUTCDate(), rangeEndDate.getUTCHours(), rangeEndDate.getUTCMinutes(), rangeEndDate.getUTCSeconds()];
+    if (!targetDate) return false;
+
+    var isArray = function(array) {
+        return (Object.prototype.toString.call(array) === '[object Array]');
+    };
+
+    // 日時をミリ秒で取得する関数
+    var getDateTime = function(dateObj) {
+        if (!dateObj) return;
+
+        if (typeof dateObj.getTime !== 'undefined') {
+            return dateObj.getTime();
+        } else if (isArray(dateObj)) {
+            if (dateObj.length === 3) {
+                return new Date(dateObj[0], Number(dateObj[1]) - 1, dateObj[2]).getTime();
+            } else {
+                return new Date(dateObj[0], Number(dateObj[1]) - 1, dateObj[2], dateObj[3], dateObj[4], dateObj[5]).getTime();
+            }
+        }
+
+        return;
+    };
+
+    targetDateTime = getDateTime(targetDateArr);
+    rangeStartTime = getDateTime(rangeStartDateArr);
+    rangeEndTime   = getDateTime(rangeEndDateArr);
+
+    if (!targetDateTime) return false;
+
+    if (rangeStartDate) {
+        if (rangeStartTime && targetDateTime >= rangeStartTime) {
+            startFlag = true;
+        }
+    } else {
+        startFlag = true;
+    }
+
+    if (rangeEndDate) {
+        if (rangeEndTime && targetDateTime <= rangeEndTime) {
+            endFlag = true;
+        }
+    } else {
+        endFlag = true;
+    }
+
+    if (startFlag && endFlag) return true;
+
+    return false;
+};
 
 // 日付固定のレコメンド譜面を取得
 function getTodayRecommend(num){
