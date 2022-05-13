@@ -13,6 +13,7 @@ let skill_point_target_num = 30;
 let dani_info, course_info;
 let max_score = 1000000;
 let min_score = 0;
+const dani_lamp_imgs = {"NO PLAY":'./imgs/dani/no_play.png', "FAILED":'./imgs/dani/failed.png', "CLEAR":'./imgs/dani/clear.png', "EX CLEAR":'./imgs/dani/ex_clear.png'}
 const initial_regex_pt = {"A.B.C.D" : /^[A-Da-d]/, "E.F.G.H" :  /^[E-He-h]/, "I.J.K.L" : /^[I-Li-l]/, "M.N.O.P" :  /^[M-Pm-p]/, "Q.R.S.T" : /^[Q-Tq-t]/, "U.V.W.X.Y.Z" : /^[U-Zu-z]/, "OTHERS" : /^([^A-Za-z])/};
 const initial_regax = ["A.B.C.D", "E.F.G.H", "I.J.K.L", "M.N.O.P", "Q.R.S.T", "U.V.W.X.Y.Z", "OTHERS"];
 const num_recommend = 10;
@@ -26,7 +27,7 @@ let user_ref;
 //2. key : "user_info", value : {"user_name": "user_name", "uid": "rtyureutreuteru"} 非ログイン時 {"user_name": "guest", "uid": null}
 //3. key : "dani" + season_num, value : {"1":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}, ... , "12":{"score":[1,2,3,4], rate:95, status:"CLEAR" or "EX_CLEAR" or "FAILED"}}
 //4. key : "skill_point", value : {"point": 334, "targets": {"live_id": 34, ... , "live_id": 25}}
-
+//5. key : "dani_season_0", value : {"初段":{"each_score:[1,2,3,4]", "total_score":10, "lamp": "NO PLAY" or "CLEAR" or "EX CLEAR" or "FAILED"}, "二段":{} ...}
 async function setUserInfo(is_login){
     const key = "user_info";
     if(localStorage.getItem(key) === null) {
@@ -184,6 +185,23 @@ function getLevelLampStatus(lv) {
     let num_total = num_clear + num_full_combo + num_no_play;
     return "All: " + num_total + "  " + " NP: " + num_no_play + "  " + " C: " + num_clear + "  "  + " FC: " + num_full_combo;
 }
+
+function getDaniScore(){
+    const key = "dani_season_" + header_info["season"];
+    if(localStorage.getItem(key) === null) {
+        let new_dic = {};
+        for(let i=0; i<dani_rank.length; i++){
+            let new_obj = {
+                "each_score": [0,0,0,0],
+                "total_score": 0,
+                "lamp": "NO PLAY"
+            };
+            new_dic[dani_rank[i]] = new_obj;
+        }
+        localStorage.setItem(key, JSON.stringify(new_dic));
+    }
+    return JSON.parse(localStorage.getItem(key));
+}
 // __________________________________________________________________________________________
 // ******************************************************************************************
 // 最初に実行する
@@ -191,10 +209,6 @@ function getLevelLampStatus(lv) {
 // __________________________________________________________________________________________
 // firebase ログイン確認 => ログインしていたら
 // header.json 読み込み => Googleスプレッドシートへのアクセス
-// user_ref = fb_fs.doc(fb_fs.collection(db, "users"), auth.currentUser.user.uid);
-// const user_info_unsubscribe = fb_fs.onSnapshot(user_ref, (snapshot) => {
-//     console.log(snapshot.id + " : " + snapshot.data()["user_name"] + " : subscribe!")
-// })
 
 $(document).ready(function () {
     //firebase ログイン確認
@@ -229,7 +243,7 @@ $(document).ready(function () {
         course_info = course;
     });
     checkLocalStorageSize();
-
+    daniImgsPreload();
 });
 
 function hh(){
@@ -484,6 +498,7 @@ function makeCustomFolder(){
     }
 }
 function makeDaniFolder(){
+    console.log(getDaniScore());
     let symbol = header_info["symbol"];
     let rounds =["1st", "2nd", "3rd", "FINAL"];
     let season = header_info["season"][header_info["season"].length - 1]; // 今のシーズンを取得
@@ -521,9 +536,14 @@ function makeDaniFolder(){
             $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append(row);
         }
         //Status
-        $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append("<tr><td style='border-bottom: none;' colspan=6 class= 'td_status' id='td_status_"+ dani_rank[i] +"'><span class='dani_status'>EXCLEAR</span><span class='dani_score'>3640200</span></td></tr>");
+        $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append("<tr><td style='border-bottom: none;' colspan=6 class= 'td_status' id='td_status_lamp"+ dani_rank[i] +"'><span class='dani_lamp'>" +
+            "<img src='" + dani_lamp_imgs[getDaniScore()[dani_rank[i]]["lamp"]] + "' oncontextmenu='return false;'></span></td></tr>");
+        $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append("<tr><td style='border-bottom: none; border-top: none;' colspan=6 class= 'td_status' id='td_status_score"+ dani_rank[i] +"'>" +
+            "<span class='dani_score'>"+getDaniScore()[dani_rank[i]]["total_score"].toString(10).padStart(7, "0")+"</span></td></tr>");
         //Challenge
         $("#" + dani_rank[i]).find(".ac_inner .box_one tbody").append("<tr><td style='border-top: none;' colspan=6 class= 'td_challenge' id='td_challenge_"+ dani_rank[i] +"'><input id='dani_button' type='button' value='CHALLENGE'></td></tr>");
+        //クリア条件
+        // $("#" + dani_rank[i]).find(".ac_inner .box_one").append("<div class='clear_requirememts'><span>CLEAR 条件</span><span>合計スコア 3700000 以上</span></div>");
     }
 }
 
@@ -870,6 +890,23 @@ class OriginalRandom {
         return min + (r % (max + 1 - min));
     }
 }
+//画像preload
+function imgPreload(img_paths) {
+    for(var i = 0; i< img_paths.length; i++){
+        $("<img>").attr("src", img_paths[i]);
+    }
+}
+function daniImgsPreload(){
+    let arr = [];
+    for(let i=0; i< dani_rank.length; i++){
+        arr.push('./imgs/dani/panel_' + dani_rank[i] + '.png')
+    }
+    arr.push('./imgs/dani/clear.png');
+    arr.push('./imgs/dani/ex_clear.png');
+    arr.push('./imgs/dani/failed.png');
+    arr.push('./imgs/dani/no_play.png');
+    imgPreload(arr);
+}
 
 // 日付固定のレコメンド譜面を取得
 function getTodayRecommend(num){
@@ -968,10 +1005,10 @@ function checkLogin(){
 //ログイン状態でon offする要素
 function setLoginStatusToObj(){
     if(checkLogin()){
-        $("#logout_button, #change_user_name").css("visibility", "visible");
+        $(".login_only").css("display", "block");
         $("#login_button, #login_password, #login_email, #login-page .message a").prop("disabled", true);
     }else{
-        $("#logout_button, #change_user_name").css("visibility", "hidden");
+        $(".login_only").css("display", "none");
         $("#login_button, #login_password, #login_email, #login-page .message a").prop("disabled", false);
     }
 }
@@ -1071,6 +1108,12 @@ $(document).on('click','#app #logout_button',function(){
         });
 });
 //ユーザーネーム変更
-$(document).on('change','#app #change_user_name',function(){
-    updateUserName($(this).val());
+$(document).on('click','#app #change_user_name_button',function(){
+    let val = $("#app #change_user_name").val();
+    if(val.length < 3){
+        alert("Please input name at least 3 characters.");
+        return;
+    }else{
+        updateUserName(val);
+    }
 });

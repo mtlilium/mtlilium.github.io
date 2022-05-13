@@ -22,6 +22,11 @@ h1 {
     font-weight: normal;
 }
 
+h2 {
+    color: rgba(240, 248, 255, 0.65);
+    font-size: 1.3em;
+}
+
 th{
     text-align: center;
     vertical-align: middle;
@@ -543,17 +548,6 @@ td{
     font-size: 1.8vmin;
 }
 
-
-#table_int tbody tr #td_lamp img{
-    width: 100%;
-    height: auto;
-    margin : 0 auto;
-    display: flex;
-    /*align-items: flex-start;*/
-    vertical-align: middle;
-    object-fit: cover;
-    cursor: pointer;
-}
 #table_int #th_dani_jacket{
     width: 10%;
 }
@@ -588,24 +582,42 @@ td{
     padding-top: 1em;
     padding-bottom: 1em;
 }
+#table_int .td_status span{
+    vertical-align: middle;
+    display: block;
+}
 
-#table_int .td_status span:first-child{
-    color: rgba(255, 160, 52, 1);
+#table_int .td_status .dani_lamp{
     float: left;
-    padding-left: 30%;
+    padding-left: 5%;
 }
-#table_int .td_status span:last-child{
+#table_int .td_status .dani_score{
     float: right;
-    padding-right: 30%;
+    padding-right: 5%;
     font-family: My7segFont;
-    font-size: 1em;
+    font-size: 2.4em;
 }
 
-#table_int .td_status span:last-child{
-    float: right;
-}
 #table_int .td_challenge{
     text-align: center;
     padding-top: 2em;
     padding-bottom: 2em;
 }
+#table_int .td_status img{
+    width : 40vw;
+    max-width: 400px;
+    height: auto;
+    vertical-align: middle;
+}
+#table_int .td_status .dani_score{
+    display: table-cell;
+    height: 36px;
+    vertical-align: middle;
+}
+/*#table_int .clear_requirememts{*/
+/*    background-color: rgba(255, 160, 52, 0.65);;*/
+/*    color: aliceblue;*/
+/*    position: relative;*/
+/*    right: 0em;*/
+/*    bottom: 0;*/
+/*}*/
