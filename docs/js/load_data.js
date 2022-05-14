@@ -8,7 +8,7 @@ const dani_rank_en = {"初段":"shodan", "二段":"nidan", "三段":"sandan", "�
 let header_info; // header.json の情報
 let chart_info; // ALL
 let insane_chart_info; // 発狂難易度表入り譜面
-let skill_point_table = []; // skillpoint 計算用テーブル
+let skill_point_table; // skillpoint 計算用テーブル
 let skill_point_target_num = 30;
 let dani_info, course_info;
 let max_score = 1000000;
@@ -21,8 +21,6 @@ const num_recommend = 10;
 //ローカル時間はgetJST(), サーバー時間は data.toDate()で比較する
 
 
-
-
 // localStorage セーブデータ
 //1. key : live_id, value : {"score": 990125, "lamp": "NO PLAY" or "CLEAR" or "FULL COMBO", "fav": true or false}
 //2. key : "user_info", value : {"user_name": "user_name", "uid": "rtyureutreuteru"} 非ログイン時 {"user_name": "guest", "uid": null}
@@ -30,6 +28,7 @@ const num_recommend = 10;
 //4. key : "skill_point", value : {"point": 334, "targets": {"live_id": 34, ... , "live_id": 25}}
 //5. key : "dani_season_0", value : {"初段":{"each_score:[1,2,3,4]", "total_score":10, "lamp": "NO PLAY" or "CLEAR" or "EX CLEAR" or "FAILED"}, "二段":{} ...}
 //6. key : "course", value : {"course_key":{"each_score:[1,2,3,4]", "total_score":10, "lamp": "NO PLAY" or "CLEAR" or "EX CLEAR" or "FAILED"}, ...}
+
 async function setUserInfo(is_login){
     const key = "user_info";
     if(localStorage.getItem(key) === null) {
@@ -132,6 +131,7 @@ function setLampStatus(){
 function initializeSkillPointTable(tar_num=skill_point_target_num){
     let m = insane_chart_info;
     if(!m.length){return {}};
+    skill_point_table = [];
     for(let i=0; i<m.length; i++){
         skill_point_table.push( {"live_id": m[i]["live_id"], "live_name": m[i]["live_name"], "★": m[i]["★"], "lamp": getMusic_LocalData(m[i]["live_id"])["lamp"], "skill_point": calSkillPoint(m[i])} );
     }
