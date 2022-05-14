@@ -585,6 +585,10 @@ async function makeCourseFolder() {
     console.log(getJST().getFullYear(), getJST().getMonth() + 1, getJST().getDate(), getJST().getHours(), getJST().getMinutes(), getJST().getSeconds())
     console.log(b.getFullYear(), b.getMonth() + 1, b.getDate(), b.getHours(), b.getMinutes(), b.getSeconds())
     console.log(isWithinRangeDays(m,a, b));
+    console.log(changeHour(a, 0.1))
+    console.log(changeHour(a, -0.05))
+    console.log(changeHour(b, -10))
+    console.log(changeHour(c, -10))
 }
 function makeIRFolder(){
 
@@ -949,6 +953,17 @@ function getJST(){
     const jstNow = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
     return jstNow;
 }
+function changeHour(time, value){
+    let tmp = new Date(time);
+    let res;
+    if(value >= 1.0){
+        res = new Date(tmp.setHours(tmp.getHours() + value));
+    }else{
+        res = new Date(tmp.setMinutes(tmp.getMinutes() + value*60));
+    }
+
+    return res;
+}
 let isWithinRangeDays = function(targetDate, rangeStartDate, rangeEndDate) {
     let targetDateTime, rangeStartTime, rangeEndTime;
     let startFlag = false;
@@ -1194,6 +1209,9 @@ async function backupData(){
         "userAgentOS" : parser.getResult()["os"]["name"],
         "userAgentBrowser" : parser.getResult()["browser"]["name"]
     }
+    //今の時間を取得
+    let now_time = getJST();
+    let acceptable_range = 10; // 10分
     await fb_fs.setDoc(userDoc, new_obj)
         .then(() => {
             alert(`success : backup`);
@@ -1210,9 +1228,17 @@ async function recoveryData(){
     let userDoc = fb_fs.doc(backupDataRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
     const userSnap = await fb_fs.getDoc(userDoc)
         .then((snap) => {
-            assignBackUpData(decompressLocalStorage(snap.data()["backupData"]));
-            alert(`success : recovery`);
-            console.log(`success : recovery`);
+            let os = snap.data()["userAgentOS"];
+            let browser = snap.data()["userAgentBrowser"];
+            let lastBackupTime = snap.data()["lastBackupTime"].toDate();
+            if(confirm("以下のバックアップデータを読み込みますか?\nos: " + os + ",\nbrowser: " + browser + ",\nbackupTime: " + lastBackupTime)) {
+                assignBackUpData(decompressLocalStorage(snap.data()["backupData"]));
+                alert(`success : recovery`);
+                console.log(`success : recovery`);
+            }else{
+                return;
+            }
+
         })
         .catch((error) => {
             alert(`failed : recovery (${error})`);
@@ -1227,7 +1253,7 @@ $(document).on('click','#app #login-page .message a',function(e){
     $('#app #login-page').children().eq((index+1)%2).addClass("form_active");
 });
 //ログインボタン
-$(document).on('click','#app #login_button',function(){
+$(document).on('click','#app #login_button', _.throttle(function(){
     let email = $("#login_email").val();
     let password = $("#login_password").val();
     fb_auth.signInWithEmailAndPassword(auth, email, password)
@@ -1241,9 +1267,9 @@ $(document).on('click','#app #login_button',function(){
             alert(`failed : login (${error})`);
             console.log(`failed : login (${error})`);
         })
-});
+}, 2000, {trailing: false}));
 //サインアップボタン
-$(document).on('click','#app #register_button',function(){
+$(document).on('click','#app #register_button', _.throttle(function(){
     let name = $("#register_name").val()
     let email = $("#register_email").val();
     let password = $("#register_password").val();
@@ -1262,7 +1288,7 @@ $(document).on('click','#app #register_button',function(){
             alert(`failed : signup (${error})`);
             console.log(`failed : signup (${error})`);
         })
-});
+}, 2000, {trailing: false}));
 //ログアウトボタン
 $(document).on('click','#app #logout_button',function(){
     fb_auth.signOut(auth)
@@ -1276,7 +1302,7 @@ $(document).on('click','#app #logout_button',function(){
         });
 });
 //ユーザーネーム変更
-$(document).on('click','#app #change_user_name_button',function(){
+$(document).on('click','#app #change_user_name_button', _.throttle(function(){
     let val = $("#app #change_user_name").val();
     if(val.length < 3){
         alert("Please input name at least 3 characters.");
@@ -1284,7 +1310,7 @@ $(document).on('click','#app #change_user_name_button',function(){
     }else{
         updateUserName(val);
     }
-});
+}, 60000, {trailing: false}));
 //バックアップボタン
 $(document).on('click','#app #backup_button',function(){
     backupData();
