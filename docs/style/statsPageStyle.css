@@ -25,6 +25,7 @@
 }
 #self_profile table td:last-child{
     text-align: right;
+    word-break: keep-all;
 }
 #score_chart{
     margin: 0 auto;

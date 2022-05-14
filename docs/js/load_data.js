@@ -1101,10 +1101,13 @@ function  setLocalStorage(key, value){
 }
 
 function compressLocalStorage(){
-    const res = {}
+    const res = {};
+    let NG_list = ["user_info"];
     for (let key in localStorage) {
         if (localStorage.hasOwnProperty(key)) {
-            res[key] = getLocalStorage(key);
+            if(NG_list.indexOf(key) === -1){
+                res[key] = getLocalStorage(key);
+            }
         }
     }
     const compressed = pako.deflate(JSON.stringify(res));
@@ -1113,7 +1116,6 @@ function compressLocalStorage(){
 
 function decompressLocalStorage(compressed){
     const restored = JSON.parse(pako.inflate(compressed, { to: 'string' }));
-    console.log(restored)
     return restored;
 }
 
@@ -1183,26 +1185,29 @@ async function initUserDoc(uid, email, user_name='no name'){
     }
 }
 async function backupData(){
-    let usersRef = fb_fs.collection(db, "users");
-    let userDoc = fb_fs.doc(usersRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
-    const userSnap = await fb_fs.getDoc(userDoc);
-    if(userSnap.exists()){
-        await fb_fs.setDoc(userDoc, {"backupData" : Array.from(compressLocalStorage()), "lastBackupTime": fb_fs.serverTimestamp()}, { merge: true })
-            .then(() => {
-                alert(`success : backup`);
-                console.log(`success : backup`);
-            })
-            .catch((error) => {
-                alert(`failed : backup (${error})`);
-                console.log(`failed : backup (${error})`);
-            });
-    }else{
-        console.log("userInfo doesn't exist on server.");
+    let backupDataRef = fb_fs.collection(db, "backupData");
+    let userDoc = fb_fs.doc(backupDataRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
+    let parser = new UAParser();
+    let new_obj = {
+        "backupData" : Array.from(compressLocalStorage()),
+        "lastBackupTime": fb_fs.serverTimestamp(),
+        "userAgentOS" : parser.getResult()["os"]["name"],
+        "userAgentBrowser" : parser.getResult()["browser"]["name"]
     }
+    await fb_fs.setDoc(userDoc, new_obj)
+        .then(() => {
+            alert(`success : backup`);
+            console.log(`success : backup`);
+        })
+        .catch((error) => {
+            alert(`failed : backup (${error})`);
+            console.log(`failed : backup (${error})`);
+        });
+
 }
 async function recoveryData(){
-    let usersRef = fb_fs.collection(db, "users");
-    let userDoc = fb_fs.doc(usersRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
+    let backupDataRef = fb_fs.collection(db, "backupData");
+    let userDoc = fb_fs.doc(backupDataRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
     const userSnap = await fb_fs.getDoc(userDoc)
         .then((snap) => {
             assignBackUpData(decompressLocalStorage(snap.data()["backupData"]));
