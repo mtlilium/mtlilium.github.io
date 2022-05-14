@@ -245,10 +245,6 @@ $(document).ready(function () {
     });
     checkLocalStorageSize();
     daniImgsPreload();
-
-    console.log(compressLocalStorage());
-    console.log(decompressLocalStorage(compressLocalStorage()));
-    assignBackUpData(decompressLocalStorage(compressLocalStorage()))
 });
 
 function hh(){
@@ -611,7 +607,7 @@ function makeStats(){
         $("#prof_name").children().eq(1).text(getUserInfo()["user_name"]);
         //self_img
         //self_profile
-        $("#prof_skill_pt").children().eq(1).text(getSkillPoint().point);
+        $("#prof_skill_pt").children().eq(1).text(getSkillPoint().point.toFixed(1));
         //ave_score
         drawChart($("#score_chart"), ave_scores_round);
         //skill_pt
@@ -1118,6 +1114,8 @@ function  setLocalStorage(key, value){
 function compressLocalStorage(){
     const res = {};
     let NG_list = ["user_info"];
+    //TODO skill_point 再計算
+    initializeSkillPointTable();
     for (let key in localStorage) {
         if (localStorage.hasOwnProperty(key)) {
             if(NG_list.indexOf(key) === -1){
@@ -1231,7 +1229,7 @@ async function recoveryData(){
             let os = snap.data()["userAgentOS"];
             let browser = snap.data()["userAgentBrowser"];
             let lastBackupTime = snap.data()["lastBackupTime"].toDate();
-            if(confirm("以下のバックアップデータを読み込みますか?\nos: " + os + ",\nbrowser: " + browser + ",\nbackupTime: " + lastBackupTime)) {
+            if(confirm("以下のバックアップデータを読み込みますか?\nos: " + os + ",\nbrowser: " + browser + ",\nbackupTime:\n" + lastBackupTime)) {
                 assignBackUpData(decompressLocalStorage(snap.data()["backupData"]));
                 alert(`success : recovery`);
                 console.log(`success : recovery`);
@@ -1301,7 +1299,7 @@ $(document).on('click','#app #logout_button',function(){
             console.log(`failed : logout (${error})`);
         });
 });
-//ユーザーネーム変更
+//ユーザーネーム変更 1分に1回しか変更できません
 $(document).on('click','#app #change_user_name_button', _.throttle(function(){
     let val = $("#app #change_user_name").val();
     if(val.length < 3){
