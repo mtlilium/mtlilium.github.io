@@ -220,7 +220,6 @@ $(document).ready(function () {
             const uid = user.uid;
             console.log("login_status : login");
 
-
         } else {
             // サインインしてない時
             console.log("login_status : logout");
@@ -246,6 +245,10 @@ $(document).ready(function () {
     });
     checkLocalStorageSize();
     daniImgsPreload();
+
+    console.log(compressLocalStorage());
+    console.log(decompressLocalStorage(compressLocalStorage()));
+    assignBackUpData(decompressLocalStorage(compressLocalStorage()))
 });
 
 function hh(){
@@ -1090,6 +1093,38 @@ function isNumber(numVal){
     return pattern.test(numVal);
 }
 
+function getLocalStorage(key){
+    return JSON.parse(localStorage.getItem(key));
+}
+function  setLocalStorage(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+function compressLocalStorage(){
+    const res = {}
+    for (let key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+            res[key] = getLocalStorage(key);
+        }
+    }
+    const compressed = pako.deflate(JSON.stringify(res));
+    return compressed;
+}
+
+function decompressLocalStorage(compressed){
+    const restored = JSON.parse(pako.inflate(compressed, { to: 'string' }));
+    console.log(restored)
+    return restored;
+}
+
+function assignBackUpData(data){
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) {
+            setLocalStorage(key, data[key]);
+        }
+    }
+}
+
 // __________________________________________________________________________________________
 // ******************************************************************************************
 // firebase 関連
@@ -1146,6 +1181,38 @@ async function initUserDoc(uid, email, user_name='no name'){
     }else{
         console.log("exist doc");
     }
+}
+async function backupData(){
+    let usersRef = fb_fs.collection(db, "users");
+    let userDoc = fb_fs.doc(usersRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
+    const userSnap = await fb_fs.getDoc(userDoc);
+    if(userSnap.exists()){
+        await fb_fs.setDoc(userDoc, {"backupData" : Array.from(compressLocalStorage()), "lastBackupTime": fb_fs.serverTimestamp()}, { merge: true })
+            .then(() => {
+                alert(`success : backup`);
+                console.log(`success : backup`);
+            })
+            .catch((error) => {
+                alert(`failed : backup (${error})`);
+                console.log(`failed : backup (${error})`);
+            });
+    }else{
+        console.log("userInfo doesn't exist on server.");
+    }
+}
+async function recoveryData(){
+    let usersRef = fb_fs.collection(db, "users");
+    let userDoc = fb_fs.doc(usersRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
+    const userSnap = await fb_fs.getDoc(userDoc)
+        .then((snap) => {
+            assignBackUpData(decompressLocalStorage(snap.data()["backupData"]));
+            alert(`success : recovery`);
+            console.log(`success : recovery`);
+        })
+        .catch((error) => {
+            alert(`failed : recovery (${error})`);
+            console.log(`failed : recovery (${error})`);
+        });
 }
 //ログイン・サインアップ画面 切替
 $(document).on('click','#app #login-page .message a',function(e){
@@ -1212,4 +1279,11 @@ $(document).on('click','#app #change_user_name_button',function(){
     }else{
         updateUserName(val);
     }
+});
+//バックアップボタン
+$(document).on('click','#app #backup_button',function(){
+    backupData();
+});
+$(document).on('click','#app #recovery_button',function(){
+    recoveryData();
 });
