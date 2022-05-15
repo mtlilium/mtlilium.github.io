@@ -1119,6 +1119,7 @@ function compressLocalStorage(){
         if (localStorage.hasOwnProperty(key)) {
             if(NG_list.indexOf(key) === -1){
                 res[key] = getLocalStorage(key);
+                console.log(key, getLocalStorage(key));
             }
         }
     }
