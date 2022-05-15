@@ -1116,6 +1116,7 @@ function compressLocalStorage(){
     let NG_list = ["user_info"];
 
     for (let key in localStorage) {
+        console.log(localStorage.hasOwnProperty("skill_point"));
         if (localStorage.hasOwnProperty(key)) {
             if(NG_list.indexOf(key) === -1){
                 res[key] = getLocalStorage(key);
@@ -1123,7 +1124,7 @@ function compressLocalStorage(){
             }
         }
     }
-    const compressed = pako.deflate(JSON.stringify(res));
+    const compressed = pako.deflate(JSON.stringify(res), { to: 'string' });
     return compressed;
 }
 
