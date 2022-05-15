@@ -1114,8 +1114,7 @@ function  setLocalStorage(key, value){
 function compressLocalStorage(){
     const res = {};
     let NG_list = ["user_info"];
-    //TODO skill_point 再計算
-    initializeSkillPointTable();
+
     for (let key in localStorage) {
         if (localStorage.hasOwnProperty(key)) {
             if(NG_list.indexOf(key) === -1){
@@ -1138,6 +1137,8 @@ function assignBackUpData(data){
             setLocalStorage(key, data[key]);
         }
     }
+    //TODO skill_point 再計算
+    initializeSkillPointTable();
 }
 
 // __________________________________________________________________________________________
