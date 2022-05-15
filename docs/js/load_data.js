@@ -1124,12 +1124,14 @@ function compressLocalStorage(){
             }
         }
     }
-    const compressed = pako.deflate(JSON.stringify(res), { to: 'string' });
+    const compressed = JSON.stringify(res);
+    // const compressed = pako.deflate(JSON.stringify(res), { to: 'string' });
     return compressed;
 }
 
 function decompressLocalStorage(compressed){
-    const restored = JSON.parse(pako.inflate(compressed, { to: 'string' }));
+    const restored = JSON.parse(compressed);
+    // const restored = JSON.parse(pako.inflate(compressed, { to: 'string' }));
     return restored;
 }
 
@@ -1205,7 +1207,7 @@ async function backupData(){
     let userDoc = fb_fs.doc(backupDataRef, auth.currentUser.uid); //uid を指定して単一のドキュメントを参照
     let parser = new UAParser();
     let new_obj = {
-        "backupData" : Array.from(compressLocalStorage()),
+        "backupData" : compressLocalStorage(),
         "lastBackupTime": fb_fs.serverTimestamp(),
         "userAgentOS" : parser.getResult()["os"]["name"],
         "userAgentBrowser" : parser.getResult()["browser"]["name"]
