@@ -247,9 +247,6 @@ $(document).ready(function () {
     daniImgsPreload();
 });
 
-function hh(){
-   console.log(auth.currentUser.uid);
-};
 
 // スクロールすると丈夫に固定されるナビゲーション
 $(document).ready(function () {
@@ -581,10 +578,17 @@ async function makeCourseFolder() {
     console.log(getJST().getFullYear(), getJST().getMonth() + 1, getJST().getDate(), getJST().getHours(), getJST().getMinutes(), getJST().getSeconds())
     console.log(b.getFullYear(), b.getMonth() + 1, b.getDate(), b.getHours(), b.getMinutes(), b.getSeconds())
     console.log(isWithinRangeDays(m,a, b));
-    console.log(changeHour(a, 0.1))
-    console.log(changeHour(a, -0.05))
+    console.log(changeHour(a, 1))
+    console.log(changeHour(a, -1))
     console.log(changeHour(b, -10))
-    console.log(changeHour(c, -10))
+    console.log(changeHour(c, 10))
+    console.log(changeMinutes(a, 1))
+    console.log(changeMinutes(a, -1))
+    console.log(changeMinutes(a, -10))
+    console.log(changeMinutes(a, 10))
+    console.log(changeMinutes(a, -20))
+    console.log(changeMinutes(a, 20))
+    console.log(isWithinRangeDays(a, changeMinutes(a, 1), changeMinutes(a, 20)));
 }
 function makeIRFolder(){
 
@@ -951,13 +955,12 @@ function getJST(){
 }
 function changeHour(time, value){
     let tmp = new Date(time);
-    let res;
-    if(value >= 1.0){
-        res = new Date(tmp.setHours(tmp.getHours() + value));
-    }else{
-        res = new Date(tmp.setMinutes(tmp.getMinutes() + value*60));
-    }
-
+    let res = new Date(tmp.setHours(tmp.getHours() + value));
+    return res;
+}
+function changeMinutes(time, value){
+    let tmp = new Date(time);
+    let res = new Date(tmp.setMinutes(tmp.getMinutes() + value));
     return res;
 }
 let isWithinRangeDays = function(targetDate, rangeStartDate, rangeEndDate) {
